@@ -1,0 +1,1254 @@
+app:
+  description: 多模态意图分析模块byWPP
+  icon: bulb
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: CricuitGEN
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1739267763160-source-1739268638354-target
+      source: '1739267763160'
+      sourceHandle: source
+      target: '1739268638354'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 1739159663982-source-1739268638354-target
+      source: '1739159663982'
+      sourceHandle: source
+      target: '1739268638354'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: variable-aggregator
+        targetType: llm
+      id: 1739268638354-source-1739268820294-target
+      source: '1739268638354'
+      sourceHandle: source
+      target: '1739268820294'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: if-else
+      id: 1739292030366-source-1739267722579-target
+      source: '1739292030366'
+      sourceHandle: source
+      target: '1739267722579'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1739267722579-false-1739159663982-target
+      source: '1739267722579'
+      sourceHandle: 'false'
+      target: '1739159663982'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: llm
+      id: 1739268820294-source-1739597284321-target
+      source: '1739268820294'
+      sourceHandle: source
+      target: '1739597284321'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: knowledge-retrieval
+      id: 1739597284321-source-1739597604659-target
+      source: '1739597284321'
+      sourceHandle: source
+      target: '1739597604659'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1739597604659-source-1739597676701-target
+      source: '1739597604659'
+      sourceHandle: source
+      target: '1739597676701'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: llm
+      id: 1739597676701-source-1739701855308-target
+      source: '1739597676701'
+      sourceHandle: source
+      target: '1739701855308'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: end
+      id: 1739701855308-source-1739266614663-target
+      source: '1739701855308'
+      sourceHandle: source
+      target: '1739266614663'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: knowledge-retrieval
+      id: 1739705004321-source-1739705191604-target
+      source: '1739705004321'
+      sourceHandle: source
+      target: '1739705191604'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: if-else
+      id: 1739267722579-true-1739705217280-target
+      source: '1739267722579'
+      sourceHandle: 'true'
+      target: '1739705217280'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1739705217280-true-1739705004321-target
+      source: '1739705217280'
+      sourceHandle: 'true'
+      target: '1739705004321'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: llm
+      id: 1739705217280-false-1739267763160-target
+      source: '1739705217280'
+      sourceHandle: 'false'
+      target: '1739267763160'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1739705191604-source-17397052929550-target
+      source: '1739705191604'
+      sourceHandle: source
+      target: '17397052929550'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: variable-aggregator
+      id: 17397052929550-source-1739268638354-target
+      source: '17397052929550'
+      sourceHandle: source
+      target: '1739268638354'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: if-else
+      id: 1739159650121-source-1739705419235-target
+      source: '1739159650121'
+      sourceHandle: source
+      target: '1739705419235'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: knowledge-retrieval
+      id: 1739705419235-true-1739292030366-target
+      source: '1739705419235'
+      sourceHandle: 'true'
+      target: '1739292030366'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: if-else
+        targetType: if-else
+      id: 1739705419235-false-1739267722579-target
+      source: '1739705419235'
+      sourceHandle: 'false'
+      target: '1739267722579'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - allowed_file_extensions: []
+          allowed_file_types:
+          - image
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+          label: image
+          max_length: 48
+          options: []
+          required: false
+          type: file
+          variable: image
+        - label: text_in
+          max_length: 256
+          options: []
+          required: false
+          type: text-input
+          variable: text_in
+      height: 116
+      id: '1739159650121'
+      position:
+        x: -165.80588787419515
+        y: 272.5
+      positionAbsolute:
+        x: -165.80588787419515
+        y: 272.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1739292030366'
+          - result
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 0.5
+          mode: chat
+          name: qwen-max-latest
+          provider: tongyi
+        prompt_template:
+        - id: be10dbc4-db98-4bad-89ce-fdcce109b637
+          role: system
+          text: "你是一个智能电子需求文档生成助手。请根据用户提供的纯文本描述生成一份结构化的需求文档，按照以下步骤进行：\n你可以参考知识库{{#context#}}\n\
+            \n1. **解析用户输入**  \n   - 从用户文本中提取关键内容，包括：项目名称、功能描述、主控类型、传感器需求、元器件预算和代码功能要求。\n\
+            \n2. **推荐合适组件**  \n   - 如果用户未明确指定主控类型或传感器，根据项目需求推荐合适的选项（例如 Arduino Uno\
+            \ 或 ESP32）。\n\n3. **生成需求文档**  \n   - 严格按照下面的模板格式输出结构化的需求文档：\n     ```\n\
+            \     项目名称: [项目名称]\n     项目描述: [项目功能描述]\n     主控类型: [主控类型]\n     传感器:\
+            \ [传感器列表]\n     元器件预算: [预算范围]\n     代码要求: [编程语言]\n     代码功能: [代码功能描述]\n\
+            \     ```\n\n4. **优化建议（可选）**  \n   - 如果用户需要，可以在文档末尾附加关于电路设计的成本与性能优化建议。\n\
+            \n5. **输出要求**  \n   - 输出必须为纯文本格式，不包含任何 XML 标签。\n"
+        - id: 881f602d-7176-459b-bda3-7c8fee9598b2
+          role: user
+          text: '我想做一个基于Arduino的小车项目，需要红外传感器和超声波传感器，预算大约300元，编程语言用C++。
+
+
+            '
+        - id: 2c323972-783f-4823-a9ed-f3ff5a4a7da9
+          role: assistant
+          text: '项目名称: 智能避障小车
+
+            项目描述: 通过红外与超声波传感器实现环境感知与避障
+
+            主控类型: Arduino Uno
+
+            传感器: 红外传感器、超声波传感器
+
+            元器件预算: 约300元
+
+            代码要求: C++
+
+            代码功能: 实现小车驱动与传感器数据采集，并控制避障逻辑'
+        - id: bddb41eb-2ae6-4d2b-ac82-522706830dbd
+          role: user
+          text: '{{#1739159650121.text_in#}}'
+        selected: false
+        title: 需求文档专家--Instruct
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1739159650121'
+            - image
+          enabled: false
+      height: 98
+      id: '1739159663982'
+      position:
+        x: 1574.186541862135
+        y: 797.7547516419014
+      positionAbsolute:
+        x: 1574.186541862135
+        y: 797.7547516419014
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1739268820294'
+          - text
+          variable: 需求文档
+        - value_selector:
+          - '1739701855308'
+          - text
+          variable: BOM文件
+        selected: false
+        title: 结束
+        type: end
+      height: 116
+      id: '1739266614663'
+      position:
+        x: 4374.394551410171
+        y: 543.4553502697379
+      positionAbsolute:
+        x: 4374.394551410171
+        y: 543.4553502697379
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: exists
+            id: dc6ebd78-15c9-4aa6-99ef-0862d152f0be
+            value: ''
+            varType: file
+            variable_selector:
+            - '1739159650121'
+            - image
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: 多模态判断
+        type: if-else
+      height: 126
+      id: '1739267722579'
+      position:
+        x: 976.7002260220829
+        y: 305.8552599253951
+      positionAbsolute:
+        x: 976.7002260220829
+        y: 305.8552599253951
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.6
+          mode: chat
+          name: qwen-vl-max
+          provider: tongyi
+        prompt_template:
+        - id: 7b962efa-96b4-4ea4-b9da-2c822570e2a0
+          role: system
+          text: "你是一个智能电子需求文档生成助手。请根据用户提供的图片（以及附带的文字描述）生成一份结构化的需求文档，按照以下步骤进行：\n\n\
+            1. **解析用户输入**  \n   - 结合图片内容及其附带描述，提取关键内容，包括：项目名称、功能描述、主控类型、传感器需求、元器件预算和代码功能要求。\n\
+            \n2. **推荐合适组件**  \n   - 如果用户未明确指定主控类型或传感器，根据项目需求推荐合适的选项（例如 Arduino Uno\
+            \ 或 ESP32）。\n\n3. **生成需求文档**  \n   - 严格按照下面的模板格式输出结构化的需求文档：\n     ```\n\
+            \     项目名称: [项目名称]\n     项目描述: [项目功能描述]\n     主控类型: [主控类型]\n     传感器:\
+            \ [传感器列表]\n     元器件预算: [预算范围]\n     代码要求: [编程语言]\n     代码功能: [代码功能描述]\n\
+            \     ```\n\n4. **优化建议（可选）**  \n   - 如果用户需要，可以在文档末尾附加关于电路设计的成本与性能优化建议。\n\
+            \n5. **输出要求**  \n   - 输出必须为纯文本格式，不包含任何 XML 标签。\n"
+        - id: 00c6098c-49f2-4818-b3bf-0aea281af5ab
+          role: user
+          text: '我画了一块简单的电路板，准备测量土壤湿度并通过蓝牙传输数据。主控还没选定，预算约为500元，代码用Python编写。
+
+
+            '
+        - id: fe3f778c-1a57-4f42-8dfa-07b8b685287b
+          role: assistant
+          text: '项目名称: 土壤湿度监测装置
+
+            项目描述: 通过电路板和传感器测量土壤湿度，并采用蓝牙方式传输数据
+
+            主控类型: 推荐使用ESP32（支持蓝牙通讯，可兼容MicroPython）
+
+            传感器: 土壤湿度传感器
+
+            元器件预算: 约500元
+
+            代码要求: Python (MicroPython)
+
+            代码功能: 完成土壤湿度采集与蓝牙数据发送'
+        - id: e784eed9-177a-477a-9fed-5bd6daed3a65
+          role: user
+          text: '{{#1739159650121.text_in#}}'
+        selected: false
+        title: 需求文档专家--多模态处理
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1739159650121'
+            - image
+          enabled: true
+      height: 98
+      id: '1739267763160'
+      position:
+        x: 1739.2935392852091
+        y: 424.3148283915612
+      positionAbsolute:
+        x: 1739.2935392852091
+        y: 424.3148283915612
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        advanced_settings:
+          group_enabled: true
+          groups:
+          - groupId: 0415534e-11ac-4bf9-ae1b-cbc99c2c0522
+            group_name: Group1
+            output_type: string
+            variables:
+            - - '1739267763160'
+              - text
+            - - '1739159663982'
+              - text
+            - - '17397052929550'
+              - text
+        desc: ''
+        output_type: string
+        selected: false
+        title: 变量聚合器
+        type: variable-aggregator
+        variables:
+        - - '1739267763160'
+          - text
+        - - '1739159663982'
+          - text
+      height: 153
+      id: '1739268638354'
+      position:
+        x: 2450.5177977468156
+        y: 434.32202253184494
+      positionAbsolute:
+        x: 2450.5177977468156
+        y: 434.32202253184494
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.2
+          mode: chat
+          name: qwen-plus-latest
+          provider: tongyi
+        prompt_template:
+        - id: 6fda17d3-1ecf-4338-b30d-51c6811f404a
+          role: system
+          text: "```xml\n<instructions>\n你的任务是将输入内容统筹并转换为Markdown格式，只调整排版，不改变内容本身。以下是完成任务的详细步骤：\n\
+            \n1. 首先检查输入内容是否为空白。如果某个text字段为空白，则直接忽略该字段，不要在输出中包含它。\n2. 对于有内容的text字段，将其转换为Markdown格式。注意以下规则：\n\
+            \   - 如果文本中有标题，使用“#”表示一级标题，“##”表示二级标题，依此类推。\n   - 如果文本中有列表，使用“-”表示无序列表，使用“1.”、“2.”等表示有序列表。\n\
+            \   - 如果文本中有加粗或斜体的内容，分别用“**”和“*”标记。\n   - 确保段落之间有适当的空行分隔。\n3. 输出结果必须是纯文本，不能包含任何XML标签或其他特殊标记。\n\
+            4. 保持内容的逻辑顺序，确保最终输出的Markdown文档结构清晰、易读。\n\n请严格按照上述步骤操作，以确保输出符合要求。\n</instructions>\n\
+            \n<examples>\n<example>\n输入：\ntext1: 这是一个标题  \ntext2: 这是一段普通文字。  \ntext3:\
+            \ \n\n输出：\n# 这是一个标题\n\n这是一段普通文字。\n</example>\n\n<example>\n输入：\ntext1:\
+            \ 主要内容  \ntext2: - 列表项1  \n- 列表项2  \ntext3: **加粗的文字**\n\n输出：\n# 主要内容\n\
+            \n- 列表项1\n- 列表项2\n\n**加粗的文字**\n</example>\n\n<example>\n输入：\ntext1: 斜体示例\
+            \  \ntext2: *这是斜体文字*  \ntext3: 1. 第一项  \n2. 第二项  \n\n输出：\n# 斜体示例\n\n*这是斜体文字*\n\
+            \n1. 第一项\n2. 第二项\n</example>\n</examples>\n```"
+        - id: 0377824c-f38d-480a-a4ef-4efd2372c064
+          role: user
+          text: '{{#1739268638354.Group1#}}'
+        selected: false
+        title: 格式化输出
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1739268820294'
+      position:
+        x: 2757
+        y: 399.5
+      positionAbsolute:
+        x: 2757
+        y: 399.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        author: WPP_JKW
+        desc: ''
+        height: 146
+        selected: false
+        showAuthor: true
+        text: '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"主要针对两种情况
+          分别调用不同的模型","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0},{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1,"textFormat":0},{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"在只有文本的情况下，调用更大参数的文本模型能够得到更好的效果","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0},{"children":[],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+        theme: blue
+        title: ''
+        type: ''
+        width: 240
+      height: 146
+      id: '1739269299185'
+      position:
+        x: 2450.5177977468156
+        y: 678.185172381243
+      positionAbsolute:
+        x: 2450.5177977468156
+        y: 678.185172381243
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-note
+      width: 240
+    - data:
+        dataset_ids:
+        - 133bd2f2-49c6-427c-a000-5da822cc5188
+        - dfedc9e0-7f38-4d04-ab71-e4b486caca56
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: tongyi
+          top_k: 4
+        query_variable_selector:
+        - '1739159650121'
+        - text_in
+        retrieval_mode: multiple
+        selected: false
+        title: 电路知识检索--文本
+        type: knowledge-retrieval
+      height: 120
+      id: '1739292030366'
+      position:
+        x: 583.1358112717728
+        y: 223.60080291651497
+      positionAbsolute:
+        x: 583.1358112717728
+        y: 223.60080291651497
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.5
+          mode: chat
+          name: DeepSeek-R1
+          provider: volcengine_maas
+        prompt_template:
+        - id: b8580a23-57c8-4407-a835-befdd894c2c2
+          role: system
+          text: "\n\n### **精准电子元器件选型Agent**\n**角色**：你是一名电子工程师，**仅生成可直接采购的电子元器件清单**，严格排除结构件、耗材及非核心组件禁止包含代码、设计理论或非元器件建议。\n\
+            \n---\n\n#### **核心指令**\n1. **输入校验**\n   - 仅接受包含以下字段的需求文档：\n     `主控类型、传感器列表、通信协议、供电电压、功能描述`\n\
+            \   - 缺失关键电气参数（如GPIO/I2C定义）→ 终止流程并返回`[错误：缺失接口定义]`\n\n2. **元器件推导规则**\n\
+            \   - **主控模块**：\n     - 严格匹配电压等级（5V/3.3V），不明确时添加`AMS1117稳压模块 x1`\n   \
+            \  - 示例：`ESP32-WROOM-32主控板 x1（3.3V，WiFi/BLE）`\n   - **传感器/执行器**：\n   \
+            \  - 每个传感器标注接口协议（I2C/SPI/UART）及电压\n     - 电机类必配`驱动模块（如TB6612FNG）x1`\n\
+            \   - **电路保护**：\n     - 数字传感器自动添加`10KΩ上拉电阻 xN`（N=传感器数量）\n     - 高功率负载（>100mA）添加`保险丝（如5A快熔型）x1`\n\
+            \n3. **知识库硬约束**\n   - **允许的品类范围**（禁止超纲）：\n     ```\n     主控板、传感器、执行器、电源模块、驱动IC、无源器件（电阻/电容/电感）、\n\
+            \     通信模块（WiFi/蓝牙/ZigBee）、电平转换芯片、晶振、二极管/三极管\n     ```\n   - **参数校验**：\n\
+            \     ```\n     a. 主控GPIO数量 ≥ ∑传感器接口需求\n     b. 电源输出电流 ≥ 主控峰值电流 + ∑传感器工作电流×1.2\n\
+            \     ```\n\n4. **输出格式**\n   ```markdown\n   ### 主控系统\n   - [主控型号] x[数量]\
+            \ （[电压]/[接口]，例：Arduino Nano x1（5V，GPIOx22））\n\n   ### 传感与执行\n   - [传感器名称]\
+            \ x[数量] （[协议]/[电压]，例：BMP280气压传感器 x1（I2C，3.3V））\n   - [执行器名称] x[数量] （例：28BYJ-48步进电机\
+            \ x2）\n\n   ### 电路核心\n   - [驱动/转换芯片] x[数量] （例：PCA9685 PWM驱动板 x1）\n   -\
+            \ [无源器件] x[数量] （例：10μF电解电容 x4（电源滤波））\n\n   ### 供电与通信\n   - [电源模块] x[数量]\
+            \ （例：TP4056充电模块 x1（5V/1A））\n   - [通信模块] x[数量] （例：SIM800L GSM模块 x1（需外置天线））\n\
+            \n   ### 关键校验\n   !!! 警告：[电气风险描述] （例：5V传感器连接3.3V主控需TXB0108电平转换器！）\n  \
+            \ ```\n### 分类信息 \n\n---\n\n**示例输出**（仅含电子元器件）：\n```markdown\n### 主控系统\n\
+            - Raspberry Pi Pico x1（3.3V，GPIOx26，需外接Flash）\n\n### 传感与执行\n- HC-SR501人体红外传感器\
+            \ x2（数字输出，5V）\n- L298N电机驱动模块 x1（双H桥，最大2A）\n\n### 电路核心\n- 4.7KΩ电阻 x6（I2C上拉x4\
+            \ + 冗余x2）\n- SN74HC595移位寄存器 x1（扩展GPIO）\n\n### 供电与通信\n- LM2596降压模块 x1（输入12V，输出5V/3A）\n\
+            - NRF24L01无线模块 x2（2.4GHz，1发1收）\n\n### 关键校验\n!!! 警告：HC-SR501需5V供电，主控3.3V\
+            \ GPIO需加分压电阻！\n```\n"
+        - id: 6c15c40f-5efb-48ce-aa90-c924ee337ac2
+          role: user
+          text: '{{#1739268820294.text#}}'
+        selected: false
+        title: 原件选择专家--前置选择
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1739597284321'
+      position:
+        x: 3060
+        y: 399.5
+      positionAbsolute:
+        x: 3060
+        y: 399.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - 5a2b499e-3b63-47dc-b73f-de48489c10f5
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: tongyi
+          score_threshold: null
+          top_k: 6
+          weights:
+            keyword_setting:
+              keyword_weight: 0
+            vector_setting:
+              embedding_model_name: embedding-3
+              embedding_provider_name: zhipuai
+              vector_weight: 1
+        query_variable_selector:
+        - '1739597284321'
+        - text
+        retrieval_mode: multiple
+        selected: false
+        title: 具体原件型号检索
+        type: knowledge-retrieval
+      height: 92
+      id: '1739597604659'
+      position:
+        x: 3363
+        y: 399.5
+      positionAbsolute:
+        x: 3363
+        y: 399.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1739597604659'
+          - result
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.3
+          mode: chat
+          name: DeepSeek-R1-32B
+          provider: volcengine_maas
+        prompt_template:
+        - id: 753ece9c-2654-4a70-abb1-542379a861c9
+          role: system
+          text: "```markdown\n你是一名电子元器件BOM生成专家，请根据以下规则生成可直接用于采购的CSV文件：\n\n1. **仅输出CSV代码块**\n\
+            \   \\- 用三重反引号包裹的Markdown代码块输出\n   \\- 禁止任何文字说明/警告/错误提示\n\n2. **字段规范**\n\
+            \   ```csv\n   元器件型号,元器件种类,数量\n   <英文型号或参数化描述>,<标准化分类>,<整数>\n   ```\n\n\
+            3. **型号生成规则**\n   \\- 知识库匹配优先使用`英文原厂型号`（如`TP4056`）\n   \\-类型应当完全参考知识库的内容\
+            \ \n   \\- 无匹配时生成`参数化型号`：\n     ```python\n     # 示例模板\n     if 电位器: \"\
+            [阻值][类型]Potentiometer\" → \"10KΩ Linear Potentiometer\"\n     if 未命名元件:\
+            \ \"[关键参数][功能]Component\" → \"6x6mm Tactile Switch\"\n     ```\n   \\\
+            - 必须保留核心参数（电压/尺寸/封装等）\n\n4. **错误修正机制**\n   \\- 自动修正前序Agent的电气冲突：\n   \
+            \  ```python\n     if 电压不匹配:\n         添加电平转换芯片（如`TXB0108`）\n     if 电流超限:\n\
+            \         添加驱动模块（如`ULN2003`）\n     ```\n   \\- 删除冗余/非法元器件（如结构件）\n\n5.\
+            \ **分类标准化**\n   ```markdown\n   主控芯片 | 传感器 | 执行器 | 电源模块\n   无源器件 | 驱动IC\
+            \ | 通信模块 | 分立器件\n   ```\n\n6. **输出示例**\n   \\```csv\n   元器件型号,元器件种类,数量\n\
+            \   STM32F103C8T6,主控芯片,1\n   10KΩ Linear Potentiometer,无源器件,1\n   6x6mm\
+            \ Tactile Switch,分立器件,2\n   XML-T6 LED,分立器件,4\n   \\```\n```\n\n### 应用效果示例\n\
+            ```csv\n元器件型号,元器件种类,数量\nArduino Nano R3,主控芯片,1\n10KΩ Linear Potentiometer,无源器件,1\n\
+            6x6mm Tactile Switch,分立器件,1\nXML-T6 LED,分立器件,1\nIRFZ44N MOSFET,驱动IC,1\n\
+            TP4056 Charging Module,电源模块,1\nMT3608 Boost Converter,电源模块,1\n18650 Protected\
+            \ Battery,电源模块,2\nSS34 Schottky Diode,分立器件,1\n10KΩ 0805 Resistor,无源器件,1\n\
+            100KΩ 1% Resistor,无源器件,1\n220KΩ 1% Resistor,无源器件,1\n5W 3Ω Power Resistor,无源器件,1\n\
+            16V 100μF Capacitor,无源器件,2\n```"
+        - id: 490e96c1-daae-44ed-818d-0d2a873a0d53
+          role: user
+          text: '上一个Agent的回复为：{{#1739597284321.text#}}
+
+            知识库检索的情况为：{{#context#}}'
+        selected: false
+        title: 原件选择专家--生成BOM文件
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1739597676701'
+      position:
+        x: 3666
+        y: 399.5
+      positionAbsolute:
+        x: 3666
+        y: 399.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        author: WPP_JKW
+        desc: ''
+        height: 88
+        selected: false
+        showAuthor: true
+        text: '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"选择大致的种类
+          再放到知识库去检索具体型号","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+        theme: blue
+        title: ''
+        type: ''
+        width: 240
+      height: 88
+      id: '1739597699285'
+      position:
+        x: 2821.2038611462053
+        y: 543.4553502697379
+      positionAbsolute:
+        x: 2821.2038611462053
+        y: 543.4553502697379
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-note
+      width: 240
+    - data:
+        author: WPP_JKW
+        desc: ''
+        height: 88
+        selected: false
+        showAuthor: true
+        text: '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"这一步之后直接输出BOM文件","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0},{"children":[],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+        theme: blue
+        title: ''
+        type: ''
+        width: 240
+      height: 88
+      id: '1739597728943'
+      position:
+        x: 3666
+        y: 568.2124709324462
+      positionAbsolute:
+        x: 3666
+        y: 568.2124709324462
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-note
+      width: 240
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.2
+          mode: chat
+          name: qwen-plus-latest
+          provider: tongyi
+        prompt_template:
+        - id: 08b30922-5437-4b99-bcbd-dcac08548444
+          role: system
+          text: '```xml
+
+            <instruction>
+
+            请按照以下步骤完成任务：
+
+
+            1. 仔细阅读输入内容，找到其中的CSV块部分。CSV块通常是由逗号分隔的数据行组成，并且可能以代码块的形式呈现（例如，用三个反引号包裹）。
+
+            2. 提取完整的CSV块，包括所有数据行和分隔符，但不包括任何额外的文本或说明。
+
+            3. 确保输出中只包含提取出的CSV块，不要添加任何其他内容或格式化标签。
+
+            4. 输出结果应当包含在一个csv代码块当中。
+
+
+            注意：如果输入中没有明确的CSV块，请返回空字符串作为输出。
+
+            </instruction>
+
+
+            <examples>
+
+            <example>
+
+            输入：
+
+            这是上一个agent的回复：
+
+            ```
+
+            名称,年龄,城市
+
+            张三,25,北京
+
+            李四,30,上海
+
+            ```
+
+            还有一些其他信息需要处理。
+
+
+            输出：
+
+            ```csv
+
+            名称,年龄,城市
+
+            张三,25,北京
+
+            李四,30,上海
+
+            ```
+
+            </example>
+
+
+            <example>
+
+            输入：
+
+            以下是回复内容：
+
+            我们已经完成了数据分析，结果如下：
+
+            ```
+
+            产品ID,销量,价格
+
+            001,100,29.99
+
+            002,200,15.50
+
+            003,150,35.00
+
+            ```
+
+            请查收并确认。
+
+
+            输出：
+
+            ```csv
+
+            产品ID,销量,价格
+
+            001,100,29.99
+
+            002,200,15.50
+
+            003,150,35.00
+
+            ```
+
+            </example>
+
+
+            <example>
+
+            输入：
+
+            回复中未包含任何CSV块，仅提供了总结性描述：“本次分析已完成，详情请参考附件。”
+
+
+            输出：
+
+
+            </example>
+
+            </examples>
+
+
+            <notes>
+
+            <note>确保输出严格符合要求，即只包含CSV块，没有任何多余字符。</note>
+
+            <note>如果输入中存在多个CSV块，请仅提取第一个出现的CSV块。</note>
+
+            <note>对于非标准格式的输入（如无CSV块），应返回空字符串。</note>
+
+            </notes>
+
+            ```'
+        - id: 78e42f9e-ad38-48bd-bf73-b3beffda0508
+          role: user
+          text: '{{#1739597676701.text#}}'
+        selected: true
+        title: BOM表格提取
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 98
+      id: '1739701855308'
+      position:
+        x: 3969
+        y: 399.5
+      positionAbsolute:
+        x: 3969
+        y: 399.5
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.8
+          mode: chat
+          name: qwen-vl-max
+          provider: tongyi
+        prompt_template:
+        - id: ec702c7c-6a80-4258-9922-780409bcc55e
+          role: system
+          text: "```xml\n<instructions>\n你是一个视觉识别助手，你的任务是根据用户上传的照片识别图片中的物体，并理解用户的意图。完成任务时，请按照以下步骤操作：\n\
+            \n1. 仔细观察用户上传的图片，识别图片中展示的主要物体或场景。\n2. 根据图片内容推断用户的意图，例如用户可能希望设计、制作或了解该物体。\n\
+            3. 基于图片和意图，生成一段简短的需求描述，明确表达用户可能需要的内容。需求描述应尽量简洁且符合实际工作流需求。\n4. 输出结果时不要包含任何XML标签，确保输出为纯文本格式。\n\
+            \n注意：如果图片内容模糊或无法准确识别，请说明情况并尝试提供最接近的推测。\n</instructions>\n\n<examples>\n\
+            <example>\n输入：一张鼠标的照片  \n输出：帮我设计一个鼠标。\n</example>\n\n<example>\n输入：一张带有未来感的无人机照片\
+            \  \n输出：我需要设计一款类似这种样式的无人机。\n</example>\n\n<example>\n输入：一张复杂的电路板照片  \n\
+            输出：请帮我分析并优化这块电路板的设计。\n</example>\n</examples>\n\n<context>\n此提示模板专为电子设计工作流服务，因此生成的需求描述需与硬件设计、产品开发或其他相关领域紧密相关。确保语言风格专业但不过于晦涩，以便工程师或设计师能够快速理解用户需求。\n\
+            </context>\n```"
+        - id: 7257b8e5-14a5-460d-8230-038c96a0a684
+          role: user
+          text: 请你根据图像识别，并输出内容
+        selected: false
+        title: 需求文档专家--多模态纯视觉处理
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1739159650121'
+            - image
+          enabled: true
+      height: 98
+      id: '1739705004321'
+      position:
+        x: 1557.099331801731
+        y: -1.3942556924306757
+      positionAbsolute:
+        x: 1557.099331801731
+        y: -1.3942556924306757
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids:
+        - dfedc9e0-7f38-4d04-ab71-e4b486caca56
+        - 133bd2f2-49c6-427c-a000-5da822cc5188
+        desc: ''
+        multiple_retrieval_config:
+          reranking_enable: true
+          reranking_mode: reranking_model
+          reranking_model:
+            model: gte-rerank
+            provider: tongyi
+          top_k: 4
+        query_variable_selector:
+        - '1739705004321'
+        - text
+        retrieval_mode: multiple
+        selected: false
+        title: 电路知识检索--视觉
+        type: knowledge-retrieval
+      height: 120
+      id: '1739705191604'
+      position:
+        x: 1855.109638454306
+        y: 100.15329626362032
+      positionAbsolute:
+        x: 1855.109638454306
+        y: 100.15329626362032
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: empty
+            id: b258fb24-ef88-47a0-8557-33520f1c9983
+            value: ''
+            varType: string
+            variable_selector:
+            - '1739159650121'
+            - text_in
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: 纯视觉判断
+        type: if-else
+      height: 126
+      id: '1739705217280'
+      position:
+        x: 1286.4498251916923
+        y: 208.95576938152098
+      positionAbsolute:
+        x: 1286.4498251916923
+        y: 208.95576938152098
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1739705191604'
+          - result
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.5
+            top_p: 0.5
+          mode: chat
+          name: qwen-max-latest
+          provider: tongyi
+        prompt_template:
+        - id: be10dbc4-db98-4bad-89ce-fdcce109b637
+          role: system
+          text: "你是一个智能电子需求文档生成助手。请根据用户提供的纯文本描述生成一份结构化的需求文档，按照以下步骤进行：\n你可以参考知识库{{#context#}}\n\
+            \n1. **解析用户输入**  \n   - 从用户文本中提取关键内容，包括：项目名称、功能描述、主控类型、传感器需求、元器件预算和代码功能要求。\n\
+            \n2. **推荐合适组件**  \n   - 如果用户未明确指定主控类型或传感器，根据项目需求推荐合适的选项（例如 Arduino Uno\
+            \ 或 ESP32）。\n\n3. **生成需求文档**  \n   - 严格按照下面的模板格式输出结构化的需求文档：\n     ```\n\
+            \     项目名称: [项目名称]\n     项目描述: [项目功能描述]\n     主控类型: [主控类型]\n     传感器:\
+            \ [传感器列表]\n     元器件预算: [预算范围]\n     代码要求: [编程语言]\n     代码功能: [代码功能描述]\n\
+            \     ```\n\n4. **优化建议（可选）**  \n   - 如果用户需要，可以在文档末尾附加关于电路设计的成本与性能优化建议。\n\
+            \n5. **输出要求**  \n   - 输出必须为纯文本格式，不包含任何 XML 标签。\n"
+        - id: 881f602d-7176-459b-bda3-7c8fee9598b2
+          role: user
+          text: '我想做一个基于Arduino的小车项目，需要红外传感器和超声波传感器，预算大约300元，编程语言用C++。
+
+
+            '
+        - id: 2c323972-783f-4823-a9ed-f3ff5a4a7da9
+          role: assistant
+          text: '项目名称: 智能避障小车
+
+            项目描述: 通过红外与超声波传感器实现环境感知与避障
+
+            主控类型: Arduino Uno
+
+            传感器: 红外传感器、超声波传感器
+
+            元器件预算: 约300元
+
+            代码要求: C++
+
+            代码功能: 实现小车驱动与传感器数据采集，并控制避障逻辑'
+        - id: bddb41eb-2ae6-4d2b-ac82-522706830dbd
+          role: user
+          text: '{{#1739705004321.text#}}'
+        selected: false
+        title: 需求文档专家--纯视觉
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1739159650121'
+            - image
+          enabled: false
+      height: 98
+      id: '17397052929550'
+      position:
+        x: 2121.5168329575445
+        y: 262.5
+      positionAbsolute:
+        x: 2121.5168329575445
+        y: 262.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: not empty
+            id: 58332405-561b-4f26-aac7-05e2c8c1fc2c
+            value: ''
+            varType: string
+            variable_selector:
+            - '1739159650121'
+            - text_in
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: 条件分支 3
+        type: if-else
+      height: 126
+      id: '1739705419235'
+      position:
+        x: 200.41990849484046
+        y: 440.6585232101333
+      positionAbsolute:
+        x: 200.41990849484046
+        y: 440.6585232101333
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        author: WPP_JKW
+        desc: ''
+        height: 88
+        selected: false
+        showAuthor: true
+        text: '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"因为无法导入NV的视觉模型llama3.3-90b
+          所以只能用这个了","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1,"textFormat":0}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
+        theme: blue
+        title: ''
+        type: ''
+        width: 240
+      height: 88
+      id: '1739711659518'
+      position:
+        x: 1739.2935392852091
+        y: 285.006182020431
+      positionAbsolute:
+        x: 1739.2935392852091
+        y: 285.006182020431
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom-note
+      width: 240
+    viewport:
+      x: -1492.077914269142
+      y: 114.55917242877655
+      zoom: 0.7391812156369223

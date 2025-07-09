@@ -1,0 +1,314 @@
+app:
+  description: ''
+  icon: floppy_disk
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: GenYUANLI
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 1
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: end
+      id: 1739264403242-source-1739263591714-target
+      source: '1739264403242'
+      sourceHandle: source
+      target: '1739263591714'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: llm
+      id: 1739263578621-source-1739264403242-target
+      source: '1739263578621'
+      sourceHandle: source
+      target: '1739264403242'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: userInput
+          max_length: 48
+          options: []
+          required: false
+          type: text-input
+          variable: userInput
+      height: 90
+      id: '1739263578621'
+      position:
+        x: 30
+        y: 263
+      positionAbsolute:
+        x: 30
+        y: 263
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1739264403242'
+          - text
+          variable: 原理图
+        - value_selector: []
+          variable: ''
+        selected: false
+        title: 结束
+        type: end
+      height: 90
+      id: '1739263591714'
+      position:
+        x: 861.3565307397262
+        y: 234.21894712423438
+      positionAbsolute:
+        x: 861.3565307397262
+        y: 234.21894712423438
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1739263578621'
+          - userInput
+        desc: ''
+        model:
+          completion_params:
+            frequency_penalty: 0.1
+            presence_penalty: 0.1
+            repetition_penalty: 1.1
+            temperature: 0.5
+            top_p: 0.9
+          mode: chat
+          name: DeepSeek-R1
+          provider: volcengine_maas
+        prompt_template:
+        - id: 3d7f5046-f312-4a94-8549-843be183abf5
+          role: system
+          text: "你是一位专业的原理图生成器。你的任务是根据用户提供的输入，生成一个符合 lceda 标准格式的原理图数据。\n\n1.  **理解输入：**\
+            \ 仔细阅读用户提供的描述，,描述不足可以自己思考补充。\n2.  **提取信息：** 从项目描述中提取关键元器件的信息，用户也可以不提供。\n\
+            3.  引脚对应：。\n4.  **生成 JSON：** 使用提取的信息和引脚对应关系，生成一个 JSON 格式的原理图数据。JSON 数据应包含元器件的类型、位置、参数、以及连接关系。\n\
+            5.  **格式要求：** **务必确保生成的 JSON 数据是有效的、格式良好的 JSON。** 这包括正确的键值对、引号使用、括号匹配、以及逗号分隔。**生成的\
+            \ JSON 必须可以通过 JSON 解析器验证。**\n6.  **简洁明了：** 尽量使生成的原理图简洁明了，易于理解。\n7.  **准确性：**\
+            \ 确保原理图的连接关系和元器件参数与项目描述一致。\n\n请注意，你不需要提供任何额外的解释或说明，只需生成 **格式规范的 JSON**\
+            \ 格式的原理图数据即可。\n\n在第一轮对话中，用户会提供项目描述和引脚功能表。请根据这些信息生成 JSON 数据。**请特别注意 JSON\
+            \ 格式的正确性\n\nlceda 标准格式参考如下\n\n \"LIB~190~230~package`DHT11_JX`spicePre`U`Supplier`LCSC`Supplier\
+            \ Part``~~0~gge1bdc0ab44f99f92d~1b818762ebba47b3aca256354b4df7d0~~0~dc5a7b86a7b73c7a~yes~yes~~~#@$T~N~174.03125~268.5625~0~#000080~Arial~~~~~comment~DHT11_JX~1~start~gge235~0~pinpart#@$T~P~190.0390625~208.53125~0~#000080~Arial~~~~~comment~U1~1~start~gge237~0~pinpart#@$R~180~210~3~3~30~50~#000000~1~0~none~gge239~0~#@$P~show~0~1~230~220~~gge240~0^^230~220^^M\
+            \ 230 220 h -20~#880000^^1~208~223~0~1~end~~~#0000FF^^1~215~219~0~1~start~~~#0000FF^^0~213~220^^0~M\
+            \ 210 217 L 207 220 L 210 223#@$P~show~0~2~230~230~~gge247~0^^230~230^^M\
+            \ 230 230 h -20~#880000^^1~208~233~0~2~end~~~#0000FF^^1~215~229~0~2~start~~~#0000FF^^0~213~230^^0~M\
+            \ 210 227 L 207 230 L 210 233#@$P~show~0~3~230~240~~gge254~0^^230~240^^M\
+            \ 230 240 h -20~#880000^^1~208~243~0~3~end~~~#0000FF^^1~215~239~0~3~start~~~#0000FF^^0~213~240^^0~M\
+            \ 210 237 L 207 240 L 210 243#@$P~show~0~4~230~250~~gge261~0^^230~250^^M\
+            \ 230 250 h -20~#880000^^1~208~253~0~4~end~~~#0000FF^^1~215~249~0~4~start~~~#0000FF^^0~213~250^^0~M\
+            \ 210 247 L 207 250 L 210 253\","
+        - id: 12e1434d-31f5-4d96-93c3-ad6cbf53fcd5
+          role: user
+          text: '电位器
+
+            '
+        - id: d6a8e655-d1c4-4293-b7a7-f1866bca2970
+          role: assistant
+          text: "\"       \"\"LIB~286~64~package`R09-RES_JX`spicePre`X`nameAlias`Value(Ω)`K(%)`50`Manufacturer\
+            \ Part`?`spiceSymbolName`Potentiometer`Supplier`LCSC`Supplier Part`C37517`~90~0~gge353b166cc2dee846~2de2b269512340d381a76ea903dc8aad~~0~c1b973c1805f8c51~yes~yes~~~#@$T~N~280~77.515625~0~#000080~Arial~~~~~comment~5k~1~start~gge173~0~pinpart#@$T~P~262.0078125~72.5234375~0~#000080~Arial~~~~~comment~R1~1~start~gge175~0~pinpart#@$R~276~61~.1~.1~20~6~#880000~1~0~none~gge177~0~#@$P~show~0~2~306~64~180~gge178~0^^306~64^^M\
+            \ 306 64 h -10~#8D2323^^0~293~67~0~2~end~~~#8D2323^^0~302~63~0~3~start~~~#8D2323^^0~293~64^^0~M\
+            \ 296 67 L 299 64 L 296 61#@$P~show~0~1~266~64~0~gge185~0^^266~64^^M 266\
+            \ 64 h 10~#8D2323^^0~279~67~0~1~start~~~#8D2323^^0~270~63~0~1~end~~~#8D2323^^0~279~64^^0~M\
+            \ 276 61 L 273 64 L 276 67#@$P~show~0~3~286~44~90~gge192~0^^286~44^^M\
+            \ 286 44 v 13~#8D2323^^0~289~60~270~3~end~~~#8D2323^^0~285~51~270~2~start~~~#8D2323^^0~286~54^^0~M\
+            \ 283 57 L 286 60 L 289 57#@$PG~283.63 57.25 288.63 57.25 285.94 60.44~#880000~1~0~#880000~gge199~0#@$E~300~61~1~1~#A00000~1~0~none~gge200~0\"\
+            \",\n          \"\"LIB~262~96~package`0603_R_JX`nameAlias`Value(Ω)`spicePre`R`spiceSymbolName`Resistor`Supplier`EasyEDA`Supplier\
+            \ Part`C25804`~~0~gge6f63fc6711cfa315~e1c1a149e9f64156ba8b569229eecb52~~0~a03753cdd8510e6c~yes~yes~~~#@$T~N~253.03125~108~0~#000080~Arial~~~~~comment~10K~1~start~gge232~0~pinpart#@$T~P~257.0390625~90.898~0~#000080~Arial~~~~~comment~R2~1~start~gge234~0~pinpart#@$R~252~92~~~20~8~#A00000~1~0~none~gge236~0~#@$P~show~0~2~242~76~0~gge237~0^^282~96^^M\
+            \ 272 96 h 10~#800^^0~268~96~0~2~end~~~#800^^0~276~92~0~2~start~~~#800^^0~255~76^^0~M\
+            \ 252 73 L 249 76 L 252 79#@$P~show~0~1~242~76~180~gge244~0^^242~96^^M\
+            \ 252 96 h -10~#800^^0~256~96~0~1~start~~~#800^^0~248~92~0~1~end~~~#800^^0~229~76^^0~M\
+            \ 232 79 L 235 76 L 232 73\"\",\n          \"\"LIB~307~96~package`0603_D_JX`Supplier`EasyEDA`spicePre`L`Supplier\
+            \ Part`C84263`~~0~gge99b8cee4c36915c1~9bd138523954401995f8967f5f191214~~0~b7f465f76387571c~yes~yes~~~#@$T~N~314.328125~102~0~#000080~Arial~~~~~comment~red~1~start~gge253~0~pinpart#@$T~P~300.3359375~114.898~0~#000080~Arial~~~~~comment~POW~1~start~gge255~0~pinpart#@$P~show~1~1~282~96~180~gge257~0^^282~96^^M\
+            \ 282 96 h 20~#000000^^0~307~99~0~A~start~~~#000000^^0~297~95~0~1~end~~~#000000^^0~299~96^^0~M\
+            \ 302 99 L 305 96 L 302 93#@$P~show~1~2~332~96~0~gge264~0^^332~96^^M 332\
+            \ 96 h -20~#000000^^0~307~99~0~C~end~~~#000000^^0~317~95~0~2~start~~~#000000^^0~315~96^^0~M\
+            \ 312 93 L 309 96 L 312 99#@$PG~302 106 312 96 302 86~#880000~1~0~#EFEFEF~gge271~0#@$PL~316\
+            \ 86 323 79~#CCCCCC~1~0~none~gge272~0#@$PL~312 82 319 75~#CCCCCC~1~0~none~gge273~0#@$PG~323\
+            \ 79 319 81 321 83~#CCCCCC~1~0~#EFEFEF~gge274~0#@$PG~319 75 315 77 317\
+            \ 79~#CCCCCC~1~0~#EFEFEF~gge275~0#@$PL~312 86 312 106~#880000~1~0~none~gge276~0\"\
+            \",\n          \"\"W~241 121 222 121 222 96 242 96~#008800~1~0~none~gge277~0\"\
+            \",\n          \"\"F~part_netLabel_VCC~228~64~0~gge278~~^^228~64^^VCC~#000080~218~52~0~start~1~Times\
+            \ New Roman~9pt~flag_gge7^^PL~228 54 228 64~#0000ff~1~0~none~gge281~^^PL~223\
+            \ 54 233 54~#0000ff~1~0~none~gge282~\"\",\n          \"\"F~part_netLabel_gnD~349~96~90~gge283~~^^349~96^^GND~#000080~336~107~270~start~0~Times\
+            \ New Roman~9pt~flag_gge10^^PL~359 96 349 96~#000000~1~0~none~gge286~^^PL~359\
+            \ 106 359 87~#000000~1~0~none~gge287~^^PL~361 102 361 89~#000000~1~0~none~gge288~^^PL~363\
+            \ 100 363 93~#000000~1~0~none~gge289~^^PL~365 97 365 95~#000000~1~0~none~gge290~\"\
+            \",\n          \"\"LIB~261~121~package`0603_C_JX`nameAlias`Value(F)`Manufacturer\
+            \ Part`C14663`spicePre`C`spiceSymbolName`Capacitor`Supplier`EasyEDA`Supplier\
+            \ Part`C14663`~180~0~ggeb4693cfd16d534cd~15578ae94e9144f1900fd3d9551a179f~~0~a0cc034715a2d0c4~yes~yes~~~#@$T~N~265.046875~129~0~#000080~Arial~~~~~comment~0.1u~1~start~gge293~0~pinpart#@$T~P~245.046875~129.0078125~0~#000080~Arial~~~~~comment~C1~1~start~gge295~0~pinpart#@$PL~263\
+            \ 113 263 129~#A00000~1~0~none~gge297~0#@$P~show~0~1~281~121~0~gge298~0^^281~121^^M\
+            \ 271 121 h 10~#800^^0~267~121~0~1~end~~~#800^^0~275~117~0~1~start~~~#800^^0~294~121^^0~M\
+            \ 291 118 L 288 121 L 291 124#@$PL~251 121 259 121~#A00000~1~0~none~gge305~0#@$PL~259\
+            \ 129 259 113~#A00000~1~0~none~gge306~0#@$P~show~0~2~241~121~180~gge307~0^^241~121^^M\
+            \ 251 121 h -10~#800^^0~255~121~0~2~start~~~#800^^0~247~117~0~2~end~~~#800^^0~228~121^^0~M\
+            \ 231 124 L 234 121 L 231 118#@$PL~263 121 271 121~#A00000~1~0~none~gge314~0\"\
+            \",\n          \"\"W~332 96 349 96 349 121 281 121~#008800~1~0~none~gge318~0\"\
+            \",\n          \"\"W~266 64 222 64 222 96~#008800~1~0~none~gge321~0\"\"\
+            ,\n          \"\"W~306 64 342 64 342 96~#008800~1~0~none~gge324~0\"\"\
+            ,\n          \"\"W~286 44 286 34 342 34~#008800~1~0~none~gge327~0\"\"\
+            ,\n          \"\"N~308~34~0~#000080~OUT~gge328~start~310~31.5~Times New\
+            \ Roman~7pt~\"\",\n          \"\"LIB~388~68~package`2.54-1*3P_JX`Manufacturer\
+            \ Part`2.54-1*3P_JX`Contributor`jixin002`spicePre`P`Supplier`LCSC`Supplier\
+            \ Part`C115246`~~0~ggec39ee3c861a7b382~7bc6f40edf984d098073403aa12b9915~~0~24d1f8fe07c4d181~yes~yes~~~#@$T~N~380~109.515625~0~#000080~Arial~~~~~comment~2.54-1*3P_JX~0~start~gge333~0~pinpart#@$T~P~388~63.515625~0~#000080~Arial~~~~~comment~P1~1~start~gge335~0~pinpart#@$P~show~0~1~422~72~0~gge337~0^^422~72^^M\
+            \ 422 72 h -20~#880000^^1~400~75~0~1~end~~~#0000FF^^0~407~71~0~1~start~~~#0000FF^^0~405~72^^0~M\
+            \ 402 69 L 399 72 L 402 75#@$P~show~0~2~422~82~0~gge344~0^^422~82^^M 422\
+            \ 82 h -20~#880000^^1~400~85~0~2~end~~~#0000FF^^0~407~81~0~2~start~~~#0000FF^^0~405~82^^0~M\
+            \ 402 79 L 399 82 L 402 85#@$P~show~0~3~422~92~0~gge351~0^^422~92^^M 422\
+            \ 92 h -20~#880000^^1~400~95~0~3~end~~~#0000FF^^0~407~91~0~3~start~~~#0000FF^^0~405~92^^0~M\
+            \ 402 89 L 399 92 L 402 95#@$R~387~67~3~3~15~30~#000000~1~0~none~gge358~0~\"\
+            \",\n          \"\"T~L~384~110.09375~0~#0000FF~~9pt~~~~comment~弯针~1~start~gge359~~pinpart\"\
+            \",\n          \"\"W~422 72 452 72~#008800~1~0~none~gge399~0\"\",\n  \
+            \        \"\"W~422 82 452 82~#008800~1~0~none~gge401~0\"\",\n        \
+            \  \"\"W~422 92 452 92~#008800~1~0~none~gge402~0\"\",\n          \"\"\
+            N~432~72~0~#000080~GND~gge403~start~434~69.5~Times New Roman~7pt~\"\"\
+            ,\n          \"\"N~434~82~0~#000080~VCC~gge406~start~436~79.5~Times New\
+            \ Roman~7pt~\"\",\n          \"\"N~434~92~0~#000080~OUT~gge409~start~436~89.5~Times\
+            \ New Roman~7pt~\"\",\n          \"\"J~349~96~2.5~#CC0000~gge319~\"\"\
+            ,\n          \"\"J~222~96~2.5~#CC0000~gge322~\"\",\n          \"\"J~342~96~2.5~#CC0000~gge325~\"\
+            \",\n          \"\"J~228~64~2.5~#CC0000~gge326~\"\"\"\n"
+        - id: 5193fa86-ad4f-4d20-9888-a052a293aac8
+          role: user
+          text: 'TP4056（工厂版）锂电池充电模块
+
+            '
+        - id: ad42286c-7d53-48d3-ab4f-cbd07bee61e7
+          role: assistant
+          text: '"LIB~500~200~package`SOP8_150MIL_JX`Contributor`Guest`Supplier`EasyEDA`Manufacturer
+            Part`C16581`spicePre`U`Supplier Part`C16581`~~0~gge1bdc0ab44f99f92d~169ac47b91134ec7a2a42844141f9fd9~~0~52b0387d2863b744~yes~yes~~~#@$T~N~494.03125~117~0~#000080~Arial~~~~~comment~TP4056_JX~1~start~gge235~0~pinpart#@$T~P~470.0078125~118.515625~0~#000080~Arial~~~~~comment~U1~1~start~gge237~0~pinpart#@$R~460~120~3~3~80~140~#000000~1~0~none~gge239~0~#@$P~show~0~5~560~140~0~gge240~0^^560~140^^M
+            560 140 h -20~#880000^^1~538~143~0~BAT~end~~~#0000FF^^1~545~139~0~5~start~~~#0000FF^^0~543~140^^0~M
+            540 137 L 537 140 L 540 143#@$P~show~0~1~560~200~0~gge247~0^^560~200^^M
+            560 200 h -20~#880000^^1~538~203~0~TEMP~end~~~#0000FF^^1~545~199~0~1~start~~~#0000FF^^0~543~200^^0~M
+            540 197 L 537 200 L 540 203#@$P~show~0~2~560~230~0~gge254~0^^560~230^^M
+            560 230 h -20~#880000^^1~538~233~0~PROG~end~~~#0000FF^^1~545~229~0~2~start~~~#0000FF^^0~543~230^^0~M
+            540 227 L 537 230 L 540 233#@$P~show~0~3~500~280~270~gge261~0^^500~280^^M
+            500 280 v -20~#880000^^1~503~258~270~GND~start~~~#0000FF^^1~499~265~270~3~end~~~#0000FF^^0~500~263^^0~M
+            503 260 L 500 257 L 497 260#@$P~show~0~4~440~140~180~gge268~0^^440~140^^M
+            440 140 h 20~#880000^^1~462~143~0~VCC~start~~~#0000FF^^1~455~139~0~4~end~~~#0000FF^^0~457~140^^0~M
+            460 143 L 463 140 L 460 137#@$P~show~0~8~440~170~180~gge275~0^^440~170^^M
+            440 170 h 20~#880000^^1~462~173~0~CE~start~~~#0000FF^^1~455~169~0~8~end~~~#0000FF^^0~457~170^^0~M
+            460 173 L 463 170 L 460 167#@$P~show~0~7~440~200~180~gge282~0^^440~200^^M
+            440 200 h 20~#880000^^1~462~203~0~CHRG~start~~~#0000FF^^1~455~199~0~7~end~~~#0000FF^^0~457~200^^0~M
+            460 203 L 463 200 L 460 197#@$P~show~0~6~440~230~180~gge289~0^^440~230^^M
+            440 230 h 20~#880000^^1~462~233~0~STDBY~start~~~#0000FF^^1~455~229~0~6~end~~~#0000FF^^0~457~230^^0~M
+            460 233 L 463 230 L 460 227",
+
+
+            '
+        - id: 020e3f9c-8c34-4a21-8813-62e88d44741e
+          role: user
+          text: "温湿度传感器模块-DHT11  \n\n产品介绍\n      DHT11温湿度传感器模块是以DHT11温湿度传感器为核心，已含有校准数字信号，可测量环境温度，相对湿度。具有极高的可靠性与卓越的长期稳定性。模块带有电源指示灯。\n\
+            \n产品介绍\n测量相对湿度范围：5~95%RH\n测量温度范围：-20~60℃\n支持 3.3V~5.5V DC 工作电压\n带有电源指示灯\n\
+            引脚功能表\n符号\tGND\tVCC\tDAT\n描述\t接地引脚\t电源输入引脚\t数据输出引脚"
+        - id: f8a05ed6-4528-47bc-bd86-f3bd4de1ea7e
+          role: assistant
+          text: ' "LIB~190~230~package`DHT11_JX`spicePre`U`Supplier`LCSC`Supplier
+            Part``~~0~gge1bdc0ab44f99f92d~1b818762ebba47b3aca256354b4df7d0~~0~dc5a7b86a7b73c7a~yes~yes~~~#@$T~N~174.03125~268.5625~0~#000080~Arial~~~~~comment~DHT11_JX~1~start~gge235~0~pinpart#@$T~P~190.0390625~208.53125~0~#000080~Arial~~~~~comment~U1~1~start~gge237~0~pinpart#@$R~180~210~3~3~30~50~#000000~1~0~none~gge239~0~#@$P~show~0~1~230~220~~gge240~0^^230~220^^M
+            230 220 h -20~#880000^^1~208~223~0~1~end~~~#0000FF^^1~215~219~0~1~start~~~#0000FF^^0~213~220^^0~M
+            210 217 L 207 220 L 210 223#@$P~show~0~2~230~230~~gge247~0^^230~230^^M
+            230 230 h -20~#880000^^1~208~233~0~2~end~~~#0000FF^^1~215~229~0~2~start~~~#0000FF^^0~213~230^^0~M
+            210 227 L 207 230 L 210 233#@$P~show~0~3~230~240~~gge254~0^^230~240^^M
+            230 240 h -20~#880000^^1~208~243~0~3~end~~~#0000FF^^1~215~239~0~3~start~~~#0000FF^^0~213~240^^0~M
+            210 237 L 207 240 L 210 243#@$P~show~0~4~230~250~~gge261~0^^230~250^^M
+            230 250 h -20~#880000^^1~208~253~0~4~end~~~#0000FF^^1~215~249~0~4~start~~~#0000FF^^0~213~250^^0~M
+            210 247 L 207 250 L 210 253",
+
+            '
+        - id: 1e4ea2b9-01d8-49bb-8a35-9077fe4df037
+          role: user
+          text: 这是项目描述{{#context#}}
+        selected: true
+        title: 原理图生成
+        type: llm
+        variables: []
+        vision:
+          configs:
+            detail: high
+            variable_selector:
+            - '1739263578621'
+            - userimage
+          enabled: false
+      height: 98
+      id: '1739264403242'
+      position:
+        x: 523.3723948178792
+        y: 263
+      positionAbsolute:
+        x: 523.3723948178792
+        y: 263
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: -164.28300910528708
+      y: 100.1037435612417
+      zoom: 0.8860296157792005

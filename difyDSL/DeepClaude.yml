@@ -1,0 +1,139 @@
+app:
+  description: DeepClaude，据说是目前地表最强的DeepSeek用法
+  icon: kissing_cat
+  icon_background: '#D5F5F6'
+  mode: agent-chat
+  name: DeepClaude
+  use_icon_as_answer_icon: false
+kind: app
+model_config:
+  agent_mode:
+    enabled: true
+    max_iteration: 5
+    prompt: null
+    strategy: function_call
+    tools:
+    - enabled: true
+      isDeleted: false
+      notAuthor: false
+      provider_id: ccea39cb-edd2-4449-a7df-ec2feeb7610e
+      provider_name: DeepClaude
+      provider_type: workflow
+      tool_label: DeepClaude
+      tool_name: deepclaude
+      tool_parameters:
+        Input: ''
+  annotation_reply:
+    enabled: false
+  chat_prompt_config: {}
+  completion_prompt_config: {}
+  dataset_configs:
+    datasets:
+      datasets: []
+    reranking_enable: false
+    retrieval_model: multiple
+    top_k: 4
+  dataset_query_variable: ''
+  external_data_tools: []
+  file_upload:
+    allowed_file_extensions:
+    - .JPG
+    - .JPEG
+    - .PNG
+    - .GIF
+    - .WEBP
+    - .SVG
+    - .MP4
+    - .MOV
+    - .MPEG
+    - .MPGA
+    allowed_file_types: []
+    allowed_file_upload_methods:
+    - remote_url
+    - local_file
+    enabled: false
+    image:
+      detail: high
+      enabled: false
+      number_limits: 3
+      transfer_methods:
+      - remote_url
+      - local_file
+    number_limits: 3
+  model:
+    completion_params:
+      stop: []
+      temperature: 0.6
+    mode: chat
+    name: glm-4-plus
+    provider: zhipuai
+  more_like_this:
+    enabled: false
+  opening_statement: 欢迎！无论您输入什么内容，我都会使用强大的DeepClaude工具来处理。我的目标是确保您得到最准确和有用的信息。请随时告诉我您的需求，我会尽力为您提供帮助。我的风格既友好又专业，期待与您愉快交流！
+  pre_prompt: '```xml
+
+    <instruction>
+
+    无论输入什么内容，都强制调用工具deepclaude。请按照以下步骤执行任务：
+
+    1. 接收输入内容，存储在变量{{input_content}}中。
+
+    2. 使用工具deepclaude处理变量{{input_content}}中的内容。
+
+    3. 将工具deepclaude的处理结果存储在变量{{output_result}}中。
+
+    4. 输出变量{{output_result}}中的内容，确保输出中不包含任何XML标签。
+
+
+    示例：
+
+    <input>
+
+    输入内容: "Hello, world!"
+
+    </input>
+
+    <example>
+
+    输出内容: "DeepClaude处理后的结果"
+
+    </example>
+
+    </instruction>
+
+    <input>
+
+    {{input_content}}
+
+    </input>
+
+    <output>
+
+    {{output_result}}
+
+    </output>
+
+    ```'
+  prompt_type: simple
+  retriever_resource:
+    enabled: true
+  sensitive_word_avoidance:
+    configs: []
+    enabled: false
+    type: ''
+  speech_to_text:
+    enabled: false
+  suggested_questions: []
+  suggested_questions_after_answer:
+    enabled: false
+  text_to_speech:
+    enabled: false
+    language: ''
+    voice: ''
+  user_input_form:
+  - text-input:
+      default: ''
+      label: input_content
+      required: false
+      variable: input_content
+version: 0.1.5

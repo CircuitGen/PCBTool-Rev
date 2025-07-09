@@ -1,0 +1,104 @@
+app:
+  description: Code Generator--用于生成Arduino或者ESP32的代码 使开发板可以执行简单的相应功能
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: agent-chat
+  name: Code Generator
+  use_icon_as_answer_icon: false
+kind: app
+model_config:
+  agent_mode:
+    enabled: true
+    max_iteration: 5
+    prompt: null
+    strategy: function_call
+    tools: []
+  annotation_reply:
+    enabled: false
+  chat_prompt_config: {}
+  completion_prompt_config: {}
+  dataset_configs:
+    datasets:
+      datasets: []
+    reranking_enable: false
+    retrieval_model: multiple
+    top_k: 4
+  dataset_query_variable: ''
+  external_data_tools: []
+  file_upload:
+    allowed_file_extensions:
+    - .JPG
+    - .JPEG
+    - .PNG
+    - .GIF
+    - .WEBP
+    - .SVG
+    - .MP4
+    - .MOV
+    - .MPEG
+    - .MPGA
+    allowed_file_types: []
+    allowed_file_upload_methods:
+    - remote_url
+    - local_file
+    enabled: false
+    image:
+      detail: high
+      enabled: false
+      number_limits: 3
+      transfer_methods:
+      - remote_url
+      - local_file
+    number_limits: 3
+  model:
+    completion_params:
+      stop: []
+    mode: chat
+    name: qwen-max-latest
+    provider: tongyi
+  more_like_this:
+    enabled: false
+  opening_statement: ''
+  pre_prompt: "```xml\n<instruction>\n你是一个代码生成助手，任务是根据用户提供的需求文档和BOM（物料清单）生成符合要求的代码。以下是完成任务的具体步骤：\n\
+    \n1. 仔细阅读并解析用户输入的需求文档 {{requirement_document}}，明确用户的功能需求、硬件平台（如Arduino或ESP32）以及编程语言要求。\n\
+    2. 根据BOM {{bom_list}} 确定所需的硬件组件及其连接方式，并在代码中通过注释说明这些信息。\n3. 编写符合需求的代码，确保代码能够在指定的硬件平台上运行。\n\
+    4. 在代码中使用注释解释关键部分的逻辑和功能，但不要在输出中包含任何额外的说明文字。\n5. 最终输出只包含代码块，不能有任何XML标签或其他非代码内容。\n\
+    \n注意：输出必须严格遵守上述格式要求，确保最终结果可以直接用于目标硬件平台。\n</instruction>\n\n<input>\n<requirement_document>\n\
+    {{requirement_document}}\n</requirement_document>\n\n<bom_list>\n{{bom_list}}\n\
+    </bom_list>\n</input>\n\n<output>\n```cpp\n// 示例代码块\n// 这里是代码实现，所有必要的说明应通过注释提供\n\
+    ```\n</output>\n\n<example>\n<requirement_document>\n用户需要一个基于ESP32的温湿度监测系统，使用DHT11传感器读取数据并通过串口输出。程序需每5秒更新一次数据。\n\
+    </requirement_document>\n\n<bom_list>\n- ESP32开发板 x1\n- DHT11温湿度传感器 x1\n- 连接线若干\n\
+    </bom_list>\n\n<output>\n```cpp\n#include <DHT.h>\n\n// 定义DHT11传感器的引脚\n#define\
+    \ DHTPIN 4     \n// 定义DHT类型为DHT11\n#define DHTTYPE DHT11   \n\nDHT dht(DHTPIN,\
+    \ DHTTYPE);\n\nvoid setup() {\n  // 初始化串口通信\n  Serial.begin(9600);\n  // 初始化DHT传感器\n\
+    \  dht.begin();\n}\n\nvoid loop() {\n  // 每5秒读取一次数据\n  delay(5000);\n\n  // 读取湿度和温度\n\
+    \  float humidity = dht.readHumidity();\n  float temperature = dht.readTemperature();\n\
+    \n  // 检查读取是否成功\n  if"
+  prompt_type: simple
+  retriever_resource:
+    enabled: true
+  sensitive_word_avoidance:
+    configs: []
+    enabled: false
+    type: ''
+  speech_to_text:
+    enabled: false
+  suggested_questions: []
+  suggested_questions_after_answer:
+    enabled: false
+  text_to_speech:
+    enabled: false
+    language: ''
+    voice: ''
+  user_input_form:
+  - text-input:
+      default: ''
+      label: requirement_document
+      required: true
+      variable: requirement_document
+  - text-input:
+      default: ''
+      label: bom_list
+      required: true
+      variable: bom_list
+version: 0.1.5

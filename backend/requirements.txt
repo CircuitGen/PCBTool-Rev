@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+requests
+pydantic
+python-multipart
+sqlalchemy
+alembic
+pandas
+openai>=1.0.0
+gTTS
+python-jose[cryptography]
+passlib[bcrypt]
