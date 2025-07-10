@@ -1,7 +1,10 @@
 <template>
   <div id="chat-container">
     <div class="sidebar">
-      <h2>Conversations</h2>
+      <div class="sidebar-header">
+        <h2>Conversations</h2>
+        <button @click="handleNewConversation" class="new-convo-btn">+</button>
+      </div>
       <div class="conversation-list">
         <div
           v-for="convo in chatStore.conversations"
@@ -10,7 +13,8 @@
           :class="{ active: convo.id === chatStore.currentConversationId }"
           @click="chatStore.currentConversationId = convo.id"
         >
-          {{ convo.title }}
+          <span class="convo-title">{{ convo.title }}</span>
+          <button @click.stop="handleDeleteConversation(convo.id)" class="delete-btn">×</button>
         </div>
       </div>
     </div>
@@ -24,10 +28,11 @@
           <div v-for="message in chatStore.currentMessages" :key="message.id" class="message" :class="message.role">
             <MessageRenderer 
               :content="message.content"
-              @analyze-components="handleAnalyzeComponents(message.id)"
-              @generate-guide="handleGenerateGuide(message.id)"
-              @generate-code="handleGenerateCode(message.id)"
-              @generate-schematic="handleGenerateSchematic(message.id)"
+              :message-id="message.id"
+              @analyze-components="handleAnalyzeComponents($event)"
+              @generate-guide="handleGenerateGuide($event)"
+              @generate-code="handleGenerateCode($event)"
+              @generate-schematic="handleGenerateSchematic($event)"
             />
           </div>
         </div>
@@ -53,13 +58,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useChatStore } from '@/stores/chat';
 import MessageRenderer from '@/components/MessageRenderer.vue';
 
 const chatStore = useChatStore();
 const textInput = ref('');
 const selectedFile = ref(null);
+
+// Fetch history when the component is mounted
+onMounted(() => {
+  chatStore.fetchHistory();
+});
+
+const handleNewConversation = () => {
+  chatStore.startNewConversation();
+};
+
+const handleDeleteConversation = (conversationId) => {
+  if (confirm('Are you sure you want to delete this conversation?')) {
+    chatStore.deleteConversation(conversationId);
+  }
+};
 
 const handleFileChange = (event) => {
   selectedFile.value = event.target.files[0];
@@ -93,7 +113,6 @@ const handleGenerateSchematic = (messageId) => {
   chatStore.generateSchematic(messageId);
 };
 </script>
-
 
 <style>
 /* Using one global style file for simplicity */
@@ -138,7 +157,39 @@ body {
   margin-top: 0;
   color: var(--text-secondary);
   font-size: 1.2rem;
+  margin-bottom: 0;
 }
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.new-convo-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding-bottom: 4px;
+}
+
+.new-convo-btn:hover {
+  background-color: var(--background-light);
+  border-color: var(--accent-color);
+}
+
 
 .conversation-list {
   overflow-y: auto;
@@ -149,7 +200,37 @@ body {
   border-radius: 8px;
   cursor: pointer;
   margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
+.convo-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  visibility: hidden; /* Hidden by default */
+  opacity: 0.6;
+  padding: 0 0.5rem;
+}
+
+.conversation-item:hover .delete-btn {
+  visibility: visible; /* Show on hover */
+}
+
+.delete-btn:hover {
+  opacity: 1;
+  color: #d93025; /* Red for delete */
+}
+
 
 .conversation-item:hover {
   background-color: var(--background-light);

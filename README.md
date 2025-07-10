@@ -11,19 +11,20 @@ PCBTool-Rev 是一个现代化的全栈 Web 应用，旨在将 `LLM3_Update.ipyn
 ## 2. 核心功能
 
 - **灵活的输入方式**: 支持仅文本、仅图片或图文结合的多种输入方式来启动分析流程。
-- **AI 图像分析**: 上传电路图或硬件图片，AI 自动分析并提取关键信息。
+- **实时流式响应**: 所有 AI 生成过程（分析、代码生成等）都采用流式响应，前端实时显示进度和结果，极大提升了用户体验。
 - **BOM 与需求文档生成**: 基于分析结果，一键生成结构化的物料清单 (BOM) 和详细的需求文档。
 - **交互式组件分析**:
   - 对生成的 BOM 进行二次分析，以表格形式清晰展示。
   - 提供操作按钮，触发后续的代码生成、指南生成等步骤。
 - **多模态内容生成**:
-  - **部署指南**: 生成图文并茂的���细项目部署文档。
+  - **部署指南**: 生成图文并茂的详细项目部署文档。
   - **语音朗读**: 将生成的指南文本转换为语音，并提供在线播放器。
   - **硬件代码生成**: 生成与硬件配套的驱动或应用代码。
   - **原理图代码**: 生成可用于 EDA 工具（如立创EDA）的原理图代码。
-- **完整的对话流**:
+- **完整的对话流与管理**:
   - 所有操作都在一个会话中完成，上下文清晰，易于追溯。
-  - 支持多会话管理，用户可以轻松切换和查看不同的分析任务。
+  - **历史记录**: 自动加载和保存所有历史会话。
+  - **会话管理**: 支持新建和删除会话，方便管理。
 
 ## 3. 技术栈
 
@@ -31,13 +32,13 @@ PCBTool-Rev 是一个现代化的全栈 Web 应用，旨在将 `LLM3_Update.ipyn
   - **框架**: FastAPI
   - **语言**: Python 3
   - **数据库**: SQLite (用于原型)
-  - **异步处理**: Uvicorn
-  - **核心库**: SQLAlchemy, Pydantic, OpenAI, Dify-Client, gTTS
+  - **异步与流式处理**: `StreamingResponse`, `async/await`, `httpx`
+  - **核心库**: SQLAlchemy, Pydantic, python-dotenv
 
 - **前端**:
   - **框架**: Vue.js 3 (Composition API)
   - **状态管理**: Pinia
-  - **HTTP客户端**: Axios
+  - **HTTP客户端**: `fetch` API (用于流式请求), Axios
   - **UI**: 使用原生 CSS 和少量库 (`marked`) 实现，轻量且高效。
   - **构建工具**: Vite
 
@@ -56,11 +57,12 @@ PCBTool-Rev 是一个现代化的全栈 Web 应用，旨在将 `LLM3_Update.ipyn
     ```bash
     cd C:\Users\WPP_JKW\PCBTool-Rev\backend
     ```
-3.  **安装/更新依赖**:
+3.  **(首次运行) 创建环境文件**: 复制 `.env.example` 为 `.env` 并根据需要修改其中的 API 密钥。
+4.  **安装/更新依赖**:
     ```bash
     pip install -r requirements.txt --upgrade
     ```
-4.  **启动 FastAPI 服务器**:
+5.  **启动 FastAPI 服务器**:
     ```bash
     python -m uvicorn app.main:app --reload
     ```

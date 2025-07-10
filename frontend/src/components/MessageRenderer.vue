@@ -1,6 +1,10 @@
 <template>
   <div class="message-content">
-    <div v-if="type === 'initial_analysis'">
+    <div v-if="type === 'loading'">
+      <div class="spinner"></div>
+      <p>Processing... {{ data.status }}</p>
+    </div>
+    <div v-else-if="type === 'initial_analysis'">
       <h3>需求文档</h3>
       <div v-html="renderMarkdown(data.需求文档)"></div>
       <hr />
@@ -31,9 +35,9 @@
         </tbody>
       </table>
       <div class="actions">
-        <button @click="$emit('generate-guide')">Generate Guide</button>
-        <button @click="$emit('generate-code')">Generate Code</button>
-        <button @click="$emit('generate-schematic')">Generate Schematic</button>
+        <button @click="onGenerateGuide">Generate Guide</button>
+        <button @click="onGenerateCode">Generate Code</button>
+        <button @click="onGenerateSchematic">Generate Schematic</button>
       </div>
     </div>
     <div v-else-if="type === 'deployment_guide'">
@@ -63,9 +67,14 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  messageId: {
+    type: Number,
+    required: true,
+  }
 });
 
-const emit = defineEmits(['analyze-components']);
+const emit = defineEmits(['analyze-components', 'generate-guide', 'generate-code', 'generate-schematic']);
+
 
 const type = computed(() => props.content.type);
 const data = computed(() => props.content.data);
@@ -77,8 +86,21 @@ const renderMarkdown = (md) => {
 };
 
 const onAnalyzeComponents = () => {
-  emit('analyze-components');
+  emit('analyze-components', props.messageId);
 };
+
+const onGenerateGuide = () => {
+  emit('generate-guide', props.messageId);
+};
+
+const onGenerateCode = () => {
+  emit('generate-code', props.messageId);
+};
+
+const onGenerateSchematic = () => {
+  emit('generate-schematic', props.messageId);
+};
+
 </script>
 
 <style scoped>
@@ -140,5 +162,26 @@ button:hover {
 audio {
   margin-top: 1rem;
   width: 100%;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: var(--accent-color);
+  animation: spin 1s ease infinite;
+  display: inline-block;
+  margin-right: 1rem;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

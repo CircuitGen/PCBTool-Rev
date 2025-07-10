@@ -11,125 +11,141 @@ from app.services import dify_service, component_service, guide_service
 from app.models import schemas
 from app.core.config import DEFAULT_USER
 
+class AnalysisRequestBody(schemas.BaseModel):
+    analysis_message_id: int
+
 api_router = APIRouter()
+
 
 
 def log_to_console(message: str):
     """A simple logger for development."""
     print(message)
 
-@api_router.post("/conversations", response_model=schemas.InitialAnalysisResponse)
-async def create_conversation_and_analyze(
+from fastapi.responses import StreamingResponse
+import asyncio
+
+# ... (other imports)
+
+# ... (AnalysisRequestBody class)
+
+async def stream_initial_analysis(db: Session, user: schemas.User, image_id: str | None, text_input: str | None):
+    """
+    Async generator that streams Dify analysis, saves the final result, and yields events.
+    """
+    # Step 1: Stream from Dify and yield progress
+    final_outputs = {}
+    async for chunk in dify_service.run_initial_analysis_workflow_stream(user.username, image_id, text_input):
+        yield f"data: {chunk}\n\n"
+        
+        # Accumulate final results from the 'workflow_finished' event
+        try:
+            data = json.loads(chunk)
+            if data.get("event") == "workflow_finished":
+                final_outputs = data.get("data", {}).get("outputs", {})
+        except json.JSONDecodeError:
+            continue # Ignore parsing errors for non-final events
+
+    # Step 2: Once streaming is done, save to DB
+    if not final_outputs:
+        # Handle case where workflow fails
+        error_event = {"event": "error", "message": "Workflow failed to produce final output."}
+        yield f"data: {json.dumps(error_event)}\n\n"
+        return
+
+    conversation_title = text_input[:50] if text_input else "Image Analysis"
+    conversation = crud.create_conversation(db, user_id=user.id, title=conversation_title)
+
+    message_content = {"type": "initial_analysis", "data": final_outputs}
+    crud.create_message(
+        db,
+        conversation_id=conversation.id,
+        role="assistant",
+        content=message_content
+    )
+    
+    # Step 3: Yield a final custom event with the new conversation ID
+    final_event = {
+        "event": "conversation_created",
+        "conversation_id": conversation.id,
+        "message_content": message_content
+    }
+    yield f"data: {json.dumps(final_event)}\n\n"
+
+
+@api_router.post("/conversations/stream")
+async def stream_create_conversation_and_analyze(
     text_input: str = Form(None),
     image: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
-    """
-    Starts a new conversation by analyzing an uploaded image, text prompt, or both.
-    This endpoint is flexible and handles three scenarios:
-    1. Text input only.
-    2. Image upload only.
-    3. Both text and image.
-    """
     if not text_input and not image:
         raise HTTPException(status_code=400, detail="Either text_input or an image must be provided.")
 
     user = crud.get_or_create_user(db, username=DEFAULT_USER)
     
     image_id = None
-    temp_dir_manager = None
+    temp_file_path = None
+    temp_dir = tempfile.TemporaryDirectory()
 
-    try:
-        if image:
-            log_to_console("Processing uploaded image...")
-            # Use a context manager for the temporary directory
-            temp_dir_manager = tempfile.TemporaryDirectory()
-            temp_dir = temp_dir_manager.__enter__()
-            temp_file_path = os.path.join(temp_dir, image.filename)
-            
-            with open(temp_file_path, "wb") as buffer:
-                shutil.copyfileobj(image.file, buffer)
+    if image:
+        temp_file_path = os.path.join(temp_dir.name, image.filename)
+        with open(temp_file_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+        image_id = dify_service.upload_file_to_dify(temp_file_path, user.username)
+        if not image_id:
+            temp_dir.cleanup()
+            raise HTTPException(status_code=500, detail="Failed to upload image to Dify.")
 
-            log_to_console("⏫ Uploading image to Dify...")
-            image_id = dify_service.upload_file_to_dify(temp_file_path, user.username)
-            if not image_id:
-                raise HTTPException(status_code=500, detail="Failed to upload image to Dify.")
-            log_to_console(f"✅ Image uploaded. Dify file ID: {image_id}")
+    prompt = text_input if text_input else "Analyze this image."
+    
+    # The generator function needs to be wrapped to clean up the temp dir
+    async def generator_wrapper():
+        try:
+            async for chunk in stream_initial_analysis(db, user, image_id, prompt):
+                yield chunk
+        finally:
+            temp_dir.cleanup()
 
-        # Use provided text or a default prompt if only an image is given
-        prompt = text_input if text_input else "Analyze this image."
-        
-        log_to_console("🚀 Calling Dify analysis workflow...")
-        analysis_result = dify_service.run_initial_analysis_workflow(
-            user=user.username,
-            log_callback=log_to_console,
-            image_id=image_id, # Can be None
-            text_input=prompt  # Use the potentially modified prompt
-        )
-
-        if not analysis_result:
-            raise HTTPException(status_code=500, detail="Failed to get analysis from Dify workflow.")
-        log_to_console("✅ Workflow finished.")
-
-        # Create conversation and save the first message
-        conversation_title = text_input[:50] if text_input else "Image Analysis"
-        conversation = crud.create_conversation(db, user_id=user.id, title=conversation_title)
-
-        message_content = {"type": "initial_analysis", "data": analysis_result}
-        message = crud.create_message(
-            db,
-            conversation_id=conversation.id,
-            role="assistant",
-            content=message_content
-        )
-
-        return {
-            "conversation_id": conversation.id,
-            "message": message.to_dict()
-        }
-    finally:
-        # Ensure the temporary directory is cleaned up
-        if temp_dir_manager:
-            temp_dir_manager.__exit__(None, None, None)
+    return StreamingResponse(generator_wrapper(), media_type="text/event-stream")
 
 
-@api_router.post("/conversations/{conversation_id}/analyze-components", response_model=schemas.Message)
+@api_router.post("/conversations/{conversation_id}/analyze-components", response_model=schemas.MessageResponse)
 async def analyze_components(
     conversation_id: int,
-    analysis_message_id: int = Form(...),
+    body: AnalysisRequestBody,
     db: Session = Depends(get_db)
 ):
     """
     Analyzes the BOM (Bill of Materials) from a previous message.
-    1.  Fetches the specified message.
-    2.  Extracts the BOM text from the message content.
-    3.  Uses the component_service to parse the BOM into a structured format.
-    4.  Saves the structured BOM data as a new message in the conversation.
     """
-    # 1. Fetch the original message containing the BOM
-    source_message = crud.get_message(db, message_id=analysis_message_id)
+    source_message = crud.get_message(db, message_id=body.analysis_message_id)
     if not source_message or source_message.conversation_id != conversation_id:
         raise HTTPException(status_code=404, detail="Source message not found in this conversation.")
 
-    # 2. Extract BOM text
+    # Extract BOM text and ReqDoc from the source message
     try:
         content = json.loads(source_message.content)
-        # The key 'BOM文件' is based on the notebook's output
-        bom_text = content.get("data", {}).get("BOM文件")
-        if not bom_text:
-            raise HTTPException(status_code=400, detail="BOM text not found in the source message.")
+        data = content.get("data", {})
+        bom_text = data.get("BOM文件")
+        req_doc = data.get("需求文档")
+        if not bom_text or not req_doc:
+            raise HTTPException(status_code=400, detail="BOM text or ReqDoc not found in the source message.")
     except (json.JSONDecodeError, KeyError):
         raise HTTPException(status_code=400, detail="Invalid source message format.")
 
     # 3. Use component_service to analyze
     status_msg, df = component_service.analyze_bom_data(bom_text)
     
-    # 4. Save the result as a new message
+    # 4. Save the result as a new message, including the original data for subsequent steps
     new_message_content = {
         "type": "component_analysis",
         "data": {
             "status": status_msg,
-            "components": df.to_dict(orient="records")
+            "components": df.to_dict(orient="records"),
+            # Carry forward the original data
+            "BOM文件": bom_text,
+            "需求文档": req_doc
         }
     }
     
@@ -142,26 +158,19 @@ async def analyze_components(
 
     return new_message.to_dict()
 
-@api_router.post("/conversations/{conversation_id}/generate-deployment-guide", response_model=schemas.DeploymentGuideResponse)
-async def generate_deployment_guide(
+@api_router.post("/conversations/{conversation_id}/generate-deployment-guide/stream")
+async def stream_generate_deployment_guide(
     conversation_id: int,
-    analysis_message_id: int = Form(...), # The ID of the message with BOM and ReqDoc
+    body: AnalysisRequestBody,
     db: Session = Depends(get_db)
 ):
     """
-    Generates a deployment guide based on the requirement document and BOM.
-    1.  Fetches the message with the initial analysis.
-    2.  Extracts the requirement document and BOM text.
-    3.  Calls the guide_service to generate the guide text.
-    4.  Calls the guide_service to convert the guide text to speech.
-    5.  Saves the guide and audio URL as a new message.
+    Streams the deployment guide generation process.
     """
-    # 1. Fetch the message with initial analysis
-    source_message = crud.get_message(db, message_id=analysis_message_id)
+    source_message = crud.get_message(db, message_id=body.analysis_message_id)
     if not source_message or source_message.conversation_id != conversation_id:
         raise HTTPException(status_code=404, detail="Source message not found.")
 
-    # 2. Extract requirement doc and BOM
     try:
         content = json.loads(source_message.content)
         data = content.get("data", {})
@@ -172,114 +181,108 @@ async def generate_deployment_guide(
     except (json.JSONDecodeError, KeyError):
         raise HTTPException(status_code=400, detail="Invalid message format.")
 
-    # 3. Generate guide text
+    # This service is not streaming, so we generate the content first
     guide_text = guide_service.generate_guide_text(req_doc, bom_text)
-
-    # 4. Generate audio
     audio_path = guide_service.convert_text_to_speech(guide_text)
-    # The URL will be relative, e.g., /static/audio/guide_123.mp3
     audio_url = "/" + audio_path.replace("\\", "/") if audio_path else None
 
-
-    # 5. Save as new message
     message_content = {
         "type": "deployment_guide",
-        "data": {
-            "text": guide_text,
-            "audio_url": audio_url
-        }
+        "data": {"text": guide_text, "audio_url": audio_url}
     }
-    new_message = crud.create_message(
-        db,
-        conversation_id=conversation_id,
-        role="assistant",
-        content=message_content
-    )
+    crud.create_message(db, conversation_id=conversation_id, role="assistant", content=message_content)
+    
+    async def generator():
+        final_event = {"event": "final_message", "content": message_content}
+        yield f"data: {json.dumps(final_event)}\n\n"
 
-    return {
-        "message": new_message.to_dict(),
-        "audio_url": audio_url
-    }
+    return StreamingResponse(generator(), media_type="text/event-stream")
 
-@api_router.post("/conversations/{conversation_id}/generate-code", response_model=schemas.CodeGenerationResponse)
-async def generate_code(
+
+@api_router.get("/conversations", response_model=list[schemas.Conversation])
+async def get_conversation_history(db: Session = Depends(get_db)):
+    """
+    Retrieves the full conversation history for the default user.
+    """
+    user = crud.get_or_create_user(db, username=DEFAULT_USER)
+    conversations = crud.get_conversations_by_user(db, user_id=user.id)
+    return conversations
+
+@api_router.delete("/conversations/{conversation_id}", status_code=204)
+async def delete_conversation(conversation_id: int, db: Session = Depends(get_db)):
+    """
+    Deletes a specific conversation.
+    """
+    user = crud.get_or_create_user(db, username=DEFAULT_USER)
+    db_conversation = crud.delete_conversation(db, conversation_id=conversation_id, user_id=user.id)
+    
+    if not db_conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+    
+    return None # No content response
+
+@api_router.post("/conversations/{conversation_id}/generate-code/stream")
+async def stream_generate_code(
     conversation_id: int,
-    analysis_message_id: int = Form(...), # The ID of the message with BOM and ReqDoc
+    body: AnalysisRequestBody,
     db: Session = Depends(get_db)
 ):
     """
-    Generates code using the Dify agent.
-    1.  Fetches the message with the initial analysis.
-    2.  Extracts the requirement document and BOM text.
-    3.  Calls the Dify service to generate code from the agent.
-    4.  Saves the generated code as a new message.
+    Streams the code generation process.
     """
-    # 1. Fetch the message with initial analysis
-    source_message = crud.get_message(db, message_id=analysis_message_id)
+    source_message = crud.get_message(db, message_id=body.analysis_message_id)
     if not source_message or source_message.conversation_id != conversation_id:
         raise HTTPException(status_code=404, detail="Source message not found.")
 
-    # 2. Extract requirement doc and BOM
     try:
         content = json.loads(source_message.content)
         data = content.get("data", {})
         req_doc = data.get("需求文档")
-        bom_text = data.get("BOM文件") # This contains the CSV in markdown
+        bom_text = data.get("BOM文件")
         if not req_doc or not bom_text:
             raise HTTPException(status_code=400, detail="ReqDoc or BOM not found in message.")
     except (json.JSONDecodeError, KeyError):
         raise HTTPException(status_code=400, detail="Invalid message format.")
 
-    # Extract just the CSV part for the agent
     bom_csv = component_service.extract_csv_from_text(bom_text)
     if not bom_csv:
         raise HTTPException(status_code=400, detail="Could not extract CSV from BOM text.")
-
-    # 3. Generate code
+    
     user = crud.get_user_by_username(db, username=DEFAULT_USER)
-    generated_code = dify_service.generate_code_from_agent(
-        req_doc=req_doc,
-        bom_csv=bom_csv,
-        user=user.username,
-        log_callback=log_to_console
-    )
 
-    # 4. Save as new message
-    message_content = {
-        "type": "generated_code",
-        "data": {
-            "language": "python", # Assuming python from notebook context
-            "code": generated_code
-        }
-    }
-    new_message = crud.create_message(
-        db,
-        conversation_id=conversation_id,
-        role="assistant",
-        content=message_content
-    )
+    async def generator():
+        full_response = ""
+        async for chunk in dify_service.run_code_generation_stream(user.username, req_doc, bom_csv):
+            yield f"data: {chunk}\n\n"
+            try:
+                event_data = json.loads(chunk)
+                if event_data.get('event') in ['message', 'agent_message']:
+                    full_response += event_data.get('answer', '')
+            except:
+                continue
+        
+        # Save final message
+        message_content = {"type": "generated_code", "data": {"language": "python", "code": full_response}}
+        crud.create_message(db, conversation_id=conversation_id, role="assistant", content=message_content)
+        final_event = {"event": "final_message", "content": message_content}
+        yield f"data: {json.dumps(final_event)}\n\n"
 
-    return {"message": new_message.to_dict()}
+    return StreamingResponse(generator(), media_type="text/event-stream")
 
-@api_router.post("/conversations/{conversation_id}/generate-schematic", response_model=schemas.SchematicResponse)
-async def generate_schematic(
+
+@api_router.post("/conversations/{conversation_id}/generate-schematic/stream")
+async def stream_generate_schematic(
     conversation_id: int,
-    analysis_message_id: int = Form(...), # The ID of the message with BOM and ReqDoc
+    body: AnalysisRequestBody,
     db: Session = Depends(get_db)
 ):
     """
-    Generates schematic code using a Dify workflow.
-    1.  Fetches the message with the initial analysis.
-    2.  Extracts the requirement document and BOM text.
-    3.  Calls the Dify service to generate the schematic code.
-    4.  Saves the generated code as a new message.
+    Streams the schematic generation process.
     """
-    # 1. Fetch the message with initial analysis
-    source_message = crud.get_message(db, message_id=analysis_message_id)
+    source_message = crud.get_message(db, message_id=body.analysis_message_id)
     if not source_message or source_message.conversation_id != conversation_id:
         raise HTTPException(status_code=404, detail="Source message not found.")
 
-    # 2. Extract requirement doc and BOM
     try:
         content = json.loads(source_message.content)
         data = content.get("data", {})
@@ -289,29 +292,26 @@ async def generate_schematic(
             raise HTTPException(status_code=400, detail="ReqDoc or BOM not found in message.")
     except (json.JSONDecodeError, KeyError):
         raise HTTPException(status_code=400, detail="Invalid message format.")
-
-    # 3. Generate schematic
+    
     user = crud.get_user_by_username(db, username=DEFAULT_USER)
-    schematic_code = dify_service.generate_schematic_from_workflow(
-        req_doc=req_doc,
-        bom_text=bom_text,
-        user=user.username,
-        log_callback=log_to_console
-    )
 
-    # 4. Save as new message
-    message_content = {
-        "type": "schematic_code",
-        "data": {
-            "language": "python", # Assuming from notebook context
-            "code": schematic_code
-        }
-    }
-    new_message = crud.create_message(
-        db,
-        conversation_id=conversation_id,
-        role="assistant",
-        content=message_content
-    )
+    async def generator():
+        final_outputs = {}
+        async for chunk in dify_service.run_schematic_generation_stream(user.username, req_doc, bom_text):
+            yield f"data: {chunk}\n\n"
+            try:
+                data = json.loads(chunk)
+                if data.get("event") == "workflow_finished":
+                    final_outputs = data.get("data", {}).get("outputs", {})
+            except:
+                continue
+        
+        # Save final message
+        schematic_code = final_outputs.get("picpic", "Schematic generation failed.")
+        message_content = {"type": "schematic_code", "data": {"language": "python", "code": schematic_code}}
+        crud.create_message(db, conversation_id=conversation_id, role="assistant", content=message_content)
+        final_event = {"event": "final_message", "content": message_content}
+        yield f"data: {json.dumps(final_event)}\n\n"
 
-    return {"message": new_message.to_dict()}
+    return StreamingResponse(generator(), media_type="text/event-stream")
+

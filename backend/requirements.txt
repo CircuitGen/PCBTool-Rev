@@ -10,3 +10,4 @@ openai>=1.0.0
 gTTS
 python-jose[cryptography]
 passlib[bcrypt]
+python-dotenv

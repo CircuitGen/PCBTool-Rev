@@ -1,8 +1,12 @@
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file
+load_dotenv()
 
 # --- Dify API Configuration ---
 # IMPORTANT: The base URL has been updated as per the mission requirements.
-DIFY_BASE_URL = "http://82.156.209.220/v1"
+DIFY_BASE_URL = os.getenv("DIFY_BASE_URL", "http://82.156.209.220/v1")
 
 # It's recommended to load these from environment variables for production
 DIFY_API_KEY_WORKFLOW = os.getenv("DIFY_API_KEY_WORKFLOW", "app-sYYYxIHMgLR68pRegzfg4Zel")

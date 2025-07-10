@@ -23,6 +23,13 @@ class Message(MessageBase):
     class Config:
         orm_mode = True
 
+class MessageResponse(BaseModel):
+    id: int
+    role: str
+    content: Dict[str, Any] # The content is a dictionary, not a string
+    created_at: datetime
+
+
 # --- Conversation Schemas ---
 
 class ConversationBase(BaseModel):
@@ -59,14 +66,14 @@ class User(UserBase):
 
 class InitialAnalysisResponse(BaseModel):
     conversation_id: int
-    message: Dict[str, Any]
+    message: MessageResponse
 
 class CodeGenerationResponse(BaseModel):
-    message: Dict[str, Any]
+    message: MessageResponse
 
 class DeploymentGuideResponse(BaseModel):
-    message: Dict[str, Any]
+    message: MessageResponse
     audio_url: Optional[str]
 
 class SchematicResponse(BaseModel):
-    message: Dict[str, Any]
+    message: MessageResponse

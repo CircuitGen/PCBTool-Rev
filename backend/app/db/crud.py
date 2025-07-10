@@ -66,3 +66,24 @@ def get_message(db: Session, message_id: int) -> db_models.Message | None:
     Retrieve a message by its ID.
     """
     return db.query(db_models.Message).filter(db_models.Message.id == message_id).first()
+
+def get_conversations_by_user(db: Session, user_id: int) -> list[db_models.Conversation]:
+    """
+    Retrieve all conversations for a specific user, ordered by creation date.
+    """
+    return db.query(db_models.Conversation).filter(db_models.Conversation.user_id == user_id).order_by(db_models.Conversation.created_at.desc()).all()
+
+def delete_conversation(db: Session, conversation_id: int, user_id: int) -> db_models.Conversation | None:
+    """
+    Deletes a conversation by its ID, ensuring it belongs to the user.
+    """
+    db_conversation = db.query(db_models.Conversation).filter(
+        db_models.Conversation.id == conversation_id,
+        db_models.Conversation.user_id == user_id
+    ).first()
+    
+    if db_conversation:
+        db.delete(db_conversation)
+        db.commit()
+    
+    return db_conversation
