@@ -1,23 +1,27 @@
+/* NVIDIA Theme - main.css */
 :root {
-  --border-color: #e0e0e0;
-  --background-light: #f7f9fc;
-  --background-white: #ffffff;
-  --text-primary: #202124;
-  --text-secondary: #5f6368;
-  --accent-color: #1a73e8;
-  --accent-color-hover: #185abc;
+  --nvidia-green: #76b900;
+  --nvidia-green-hover: #88d400;
+  --dark-primary-bg: #1a1a1a;
+  --dark-secondary-bg: #2c2c2c;
+  --dark-tertiary-bg: #333333;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --border-color: #444444;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--background-light);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background-color: var(--dark-primary-bg);
   color: var(--text-primary);
+  font-size: 16px;
 }
 
 #app {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
 #chat-container {
@@ -25,26 +29,162 @@ body {
   width: 100%;
 }
 
+/* --- Sidebar --- */
 .sidebar {
-  width: 250px;
-  background-color: var(--background-white);
+  width: 280px;
+  background-color: var(--dark-primary-bg);
   border-right: 1px solid var(--border-color);
-  padding: 1rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease;
 }
 
-.sidebar h2 {
-  margin-top: 0;
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.new-convo-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  font-size: 1.2rem;
+  font-size: 1.8rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding-bottom: 4px;
 }
 
+.new-convo-btn:hover {
+  background-color: var(--nvidia-green);
+  border-color: var(--nvidia-green);
+  color: var(--dark-primary-bg);
+  transform: rotate(90deg);
+}
+
+.conversation-list {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.conversation-item {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.conversation-item:hover {
+  background-color: var(--dark-secondary-bg);
+}
+
+.conversation-item.active {
+  background-color: var(--nvidia-green);
+  color: var(--dark-primary-bg);
+  font-weight: 500;
+}
+
+.convo-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  visibility: hidden;
+  opacity: 0.7;
+  padding: 0 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.conversation-item:hover .delete-btn {
+  visibility: visible;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+  color: #ff4d4f;
+  transform: scale(1.1);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-secondary);
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: var(--dark-secondary-bg);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+/* --- Main Content --- */
 .main-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background-color: var(--dark-secondary-bg); /* New background color */
+}
+
+.banner-container {
+  width: 100%;
+  height: 200px; /* Adjust height as needed */
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This scales the image to cover the container */
+}
+
+.message-window, .input-area, .error-bar {
+  position: relative;
+  z-index: 2;
 }
 
 .message-window {
@@ -59,42 +199,100 @@ body {
   color: var(--text-secondary);
 }
 
+.welcome-message h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.message {
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  max-width: 80%;
+  line-height: 1.6;
+}
+
+.message.assistant {
+  background-color: var(--dark-secondary-bg);
+  align-self: flex-start;
+  border: 1px solid var(--border-color);
+}
+
+.message.user {
+  background-color: var(--nvidia-green);
+  color: var(--dark-primary-bg);
+  align-self: flex-end;
+}
+
+.message-content pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.error-bar {
+  padding: 1rem;
+  background-color: #ff4d4f;
+  color: white;
+  text-align: center;
+}
+
+/* --- Input Area --- */
 .input-area {
   display: flex;
-  padding: 1rem;
+  padding: 1.5rem;
   border-top: 1px solid var(--border-color);
-  background-color: var(--background-white);
+  background-color: rgba(26, 26, 26, 0.9);
 }
 
 .input-area input[type='text'] {
   flex-grow: 1;
+  background: var(--dark-secondary-bg);
   border: 1px solid var(--border-color);
-  border-radius: 18px;
-  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  padding: 0.8rem 1.2rem;
   font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.input-area input[type='text']:focus {
+    outline: none;
+    border-color: var(--nvidia-green);
 }
 
 .input-area input[type='file'] {
   width: 120px;
+  margin-left: 1rem;
 }
 
 .input-area button {
-  background-color: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 18px;
-  padding: 0.5rem 1.5rem;
+  background-color: var(--nvidia-green);
+  color: var(--dark-primary-bg);
+  font-weight: bold;
+  border: 1px solid var(--nvidia-green);
+  border-radius: 25px;
+  padding: 0.8rem 2rem;
   margin-left: 1rem;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .input-area button:hover {
-  background-color: var(--accent-color-hover);
+  background-color: var(--nvidia-green-hover);
+  border-color: var(--nvidia-green-hover);
 }
 
 .input-area button:disabled {
-  background-color: #cccccc;
+  background-color: #555;
+  color: #888;
   cursor: not-allowed;
 }

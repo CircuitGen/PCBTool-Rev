@@ -121,17 +121,20 @@ hr {
   text-align: right;
 }
 button {
-  background-color: var(--accent-color);
-  color: white;
-  border: none;
+  background-color: transparent;
+  color: var(--nvidia-green);
+  border: 1px solid var(--nvidia-green);
   border-radius: 8px;
   padding: 0.6rem 1rem;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.2s;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
 }
 button:hover {
-  background-color: var(--accent-color-hover);
+  background-color: var(--nvidia-green);
+  color: var(--dark-primary-bg);
 }
 
 .component-table {
