@@ -3,7 +3,7 @@
     <div class="sidebar">
       <div class="sidebar-header">
         <h2>Conversations</h2>
-        <button @click="handleNewConversation" class="new-convo-btn">+</button>
+        <button @click="handleNewConversation" class="new-convo-btn" title="New Conversation">+</button>
       </div>
       <div class="conversation-list">
         <div
@@ -14,8 +14,12 @@
           @click="chatStore.currentConversationId = convo.id"
         >
           <span class="convo-title">{{ convo.title }}</span>
-          <button @click.stop="handleDeleteConversation(convo.id)" class="delete-btn">×</button>
+          <button @click.stop="handleDeleteConversation(convo.id)" class="delete-btn" title="Delete">×</button>
         </div>
+      </div>
+      <div class="sidebar-footer">
+        <span>{{ authStore.username }}</span>
+        <button @click="authStore.logout()" class="logout-btn" title="Logout">Logout</button>
       </div>
     </div>
     <div class="main-content">
@@ -60,9 +64,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useChatStore } from '@/stores/chat';
+import { useAuthStore } from '@/stores/auth';
 import MessageRenderer from '@/components/MessageRenderer.vue';
 
 const chatStore = useChatStore();
+const authStore = useAuthStore();
 const textInput = ref('');
 const selectedFile = ref(null);
 
@@ -152,6 +158,28 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: var(--background-light);
+}
+
 
 .sidebar h2 {
   margin-top: 0;

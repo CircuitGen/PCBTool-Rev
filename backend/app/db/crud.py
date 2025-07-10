@@ -4,6 +4,8 @@ import json
 from . import models as db_models
 from app.models import schemas
 
+from app.services import security_service
+
 def get_user_by_username(db: Session, username: str) -> db_models.User | None:
     """
     Retrieve a user from the database by their username.
@@ -12,13 +14,25 @@ def get_user_by_username(db: Session, username: str) -> db_models.User | None:
 
 def create_user(db: Session, user: schemas.UserCreate) -> db_models.User:
     """
-    Create a new user in the database.
+    Create a new user in the database with a hashed password.
     """
-    db_user = db_models.User(username=user.username)
+    hashed_password = security_service.get_password_hash(user.password)
+    db_user = db_models.User(username=user.username, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def authenticate_user(db: Session, username: str, password: str) -> db_models.User | None:
+    """
+    Authenticate a user. Returns the user object if successful, otherwise None.
+    """
+    user = get_user_by_username(db, username)
+    if not user:
+        return None
+    if not security_service.verify_password(password, user.hashed_password):
+        return None
+    return user
 
 def get_or_create_user(db: Session, username: str) -> db_models.User:
     """

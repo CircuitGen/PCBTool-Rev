@@ -10,8 +10,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
-    # In a real app, you'd store a hashed password, not the actual one.
-    # hashed_password = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
 
     conversations = relationship("Conversation", back_populates="user")
 

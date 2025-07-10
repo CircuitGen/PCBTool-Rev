@@ -53,7 +53,8 @@ class UserBase(BaseModel):
     username: str
 
 class UserCreate(UserBase):
-    pass
+    password: str
+
 
 class User(UserBase):
     id: int
@@ -61,6 +62,14 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+# --- Token Schemas ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
 
 # --- API Specific Schemas ---
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:8000/api/v1',
@@ -7,10 +8,28 @@ const apiClient = axios.create({
   },
 });
 
+// Request Interceptor to add the auth token
+apiClient.interceptors.request.use(config => {
+    const authStore = useAuthStore();
+    const token = authStore.token;
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, error => {
+    return Promise.reject(error);
+});
+
 function streamApiRequest(endpoint, body, onStreamEvent) {
+  const authStore = useAuthStore();
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${authStore.token}`
+  };
+
   fetch(`http://localhost:8000/api/v1${endpoint}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers,
     body: JSON.stringify(body),
   })
   .then(async response => {
@@ -50,18 +69,40 @@ function streamApiRequest(endpoint, body, onStreamEvent) {
 }
 
 export default {
+  // --- Auth ---
+  login(username, password) {
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('password', password);
+    return apiClient.post('/token', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+  },
+  register(username, password) {
+    return apiClient.post('/users/register', { username, password });
+  },
+
+  // --- Conversations ---
   startConversation(text, imageFile, onStreamEvent) {
     const formData = new FormData();
     if (text) formData.append('text_input', text);
     if (imageFile) formData.append('image', imageFile);
 
+    const authStore = useAuthStore();
+    const headers = {};
+    if (authStore.token) {
+      headers['Authorization'] = `Bearer ${authStore.token}`;
+    }
+
     fetch('http://localhost:8000/api/v1/conversations/stream', {
       method: 'POST',
+      headers: headers,
       body: formData,
     })
     .then(async response => {
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
       }
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -79,7 +120,7 @@ export default {
             if (jsonStr) {
               try {
                 const eventData = JSON.parse(jsonStr);
-                onStreamEvent(eventData);
+                onStreamEvent(eventData); // Pass the parsed event to the callback
               } catch (e) {
                 console.error("Failed to parse stream event JSON:", jsonStr, e);
               }

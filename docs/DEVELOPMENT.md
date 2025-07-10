@@ -12,7 +12,6 @@
 ## 2. 后端详解
 
 ### 2.1. 目录结构
-
 ```
 backend/
 ├── app/
@@ -27,20 +26,24 @@ backend/
 │   ├── models/
 │   │   └── schemas.py        # Pydantic 数据验证模型
 │   ├── services/
-│   │   ├── component_service.py # 组件分析和商城搜索逻辑
-│   │   ├── dify_service.py     # 与 Dify API 交互的逻辑
-│   │   └── guide_service.py    # 部署指南和TTS生成逻辑
+│   │   ├── component_service.py # 组件分析逻辑
+│   │   ├── dify_service.py     # 与 Dify API 交���的逻辑
+│   │   ├── guide_service.py    # 部署指南和TTS生成逻辑
+│   │   └── security_service.py # 密码哈希、JWT令牌和依赖项
 │   └── main.py               # FastAPI 应用入口
 ├── .env.example              # 环境变量示例文件
-├── static/
-│   └── audio/                # 存放生成的音频文件
 └── requirements.txt          # Python 依赖
 ```
 
-### 2.2. 核心逻辑
-
-- **流式响应 (Streaming)**: 对于所有耗时较长的 AI 生成任务，后端使用 FastAPI 的 `StreamingResponse` 将 Dify API 的 Server-Sent Events (SSE) 直接转发给前端。这使得前端可以实时显示进度（如 "节点开始"）和逐步生成的文本，极大地改善了用户体验。
-- **配置管理**: 使用 `.env` 文件进行本地开发的环境变量管理，通过 `python-dotenv` 加载。`config.py` 从环境变量中读取配置，使得 API 密钥等敏感信息的管理更加安全和灵活。
+### 2.2. 认证与授权
+- **机制**: 采用标准的 OAuth2 密码流和 JWT (JSON Web Tokens) 进行认证。
+- **实现**:
+  - `security_service.py` 包含所有核心安全功能：
+    - 使用 `passlib` 对用户密码进行哈希处理和验证。
+    - 使用 `python-jose` 创建和解码 JWT 令牌。
+    - `get_current_user` 是一个 FastAPI 依赖项，它会解码请求头中的 `Bearer` 令牌，验证用户身份，并将用户对象注入到需要保护的端点中。
+  - `endpoints.py` 中所有需要用户登录的端点都依赖于 `get_current_user`，从而实现了路由保护。
+  - 数据库 `crud` 操作现在都与 `user_id` 关联，确保了严格的用户数据隔离。
 
 ---
 
@@ -48,63 +51,45 @@ backend/
 
 所有 API 的基础路径为 `/api/v1`。
 
-### 3.1. 获取会话历史
-- **Endpoint**: `GET /conversations`
-- **描述**: 获取默认用户的所有会话历史，按时间倒序排列。
-- **成功响应 (200 OK)**: `List[Conversation]`
+### 3.1. 认证 (Public)
+- **`POST /token`**: 用户登录，返回 JWT 访问令牌。
+- **`POST /users/register`**: 注册新用户。
 
-### 3.2. 开始新会话 (流式)
-- **Endpoint**: `POST /conversations/stream`
-- **描述**: 创建一个新会话。用户可以上传图片、输入文本，或两者都提供。后端以流式响应转发 Dify ��作流的事件。
-- **请求类型**: `multipart/form-data`
-- **成功响应**: 一个 `text/event-stream` 数据流。
+### 3.2. 会话管理 (Protected)
+- **`GET /conversations`**: 获取当前登��用户的所有会话历史。
+- **`POST /conversations/stream`**: 为当前用户开始一个新的流式分析会话。
+- **`DELETE /conversations/{conversation_id}`**: 删除当前用户的指定会话。
 
-### 3.3. 分析元器件
-- **Endpoint**: `POST /conversations/{conversation_id}/analyze-components`
-- **描述**: 基于初次分析生成的 BOM，对其进行结构化处理。**注意**: 此端点为历史遗留，新功能已集成到流式端点中，但为保证向后兼容性而保留。
-- **请求类型**: `application/json`
-- **成功响应 (200 OK)**: `MessageResponse`
-
-### 3.4. 生成代码 (流式)
-- **Endpoint**: `POST /conversations/{conversation_id}/generate-code/stream`
-- **描述**: 根据需求文档和 BOM，流式生成代码。
-- **请求类型**: `application/json`
-- **成功响应**: 一个 `text/event-stream` 数据流。
-
-### 3.5. 生成部署指南 (流式)
-- **Endpoint**: `POST /conversations/{conversation_id}/generate-deployment-guide/stream`
-- **描述**: 根据需求文档和 BOM，流式生成部署指南。
-- **请求类型**: `application/json`
-- **成功响应**: 一个 `text/event-stream` 数据流。
-
-### 3.6. 生成原理图代码 (流式)
-- **Endpoint**: `POST /conversations/{conversation_id}/generate-schematic/stream`
-- **描述**: 根据需求文档和 BOM，流式生成原理图代码。
-- **请求类型**: `application/json`
-- **成功响应**: 一个 `text/event-stream` 数据流。
-
-### 3.7. 删除会话
-- **Endpoint**: `DELETE /conversations/{conversation_id}`
-- **描述**: 删除指定ID的会话。
-- **成功响应 (204 No Content)**
+### 3.3. 内容生成 (Protected)
+- **`POST /conversations/{conversation_id}/analyze-components`**: 分析BOM。
+- **`POST /conversations/{conversation_id}/generate-code/stream`**: 流式生成代码。
+- **`POST /conversations/{conversation_id}/generate-deployment-guide/stream`**: 流式生成部署指南。
+- **`POST /conversations/{conversation_id}/generate-schematic/stream`**: 流式生成原理图代码。
 
 ---
 
 ## 4. 前端详解
 
-### 4.1. 核心逻辑
-- **流式处理**: `api.js` 中使用原生的 `fetch` API 来处理 `text/event-stream` 响应。`chat.js` store 中定义了 `onStreamEvent` 回调函数，用于解析 SSE 事件并实时更新 Pinia state。
-- **响应式UI**: `MessageRenderer.vue` 组件根据消息的 `type` 和 `data` 动态渲染。对于流式消息，它会先显示一个加载动画，然后随着 `data.streamedContent` 的更新而实时展示文本，提供了优秀的实时反馈。
-- **会话管理**:
-  - `App.vue` 在 `onMounted`生命周期钩子中调用 `fetchHistory` action 来加载历史记录。
-  - “新建”按钮通过调用 `startNewConversation` action 来重置视图。
-  - “删除”按钮调用 `deleteConversation` action，该 action 会发送 API 请求并在成功后从本地 state 中移除该会话。
+### 4.1. 目录结构
+```
+frontend/
+├── src/
+│   ├── assets/           # CSS 和静态资源
+│   ├── components/       # 可复用Vue组件 (MessageRenderer)
+│   ├── router/           # Vue Router 配置
+│   ├── services/         # API 请求服务 (api.js)
+│   ├── stores/           # Pinia 状态管理 (auth.js, chat.js)
+│   ├── views/            # 页面级组件 (LoginView, RegisterView)
+│   ├── App.vue           # 主聊天界面 (受保护)
+│   ├── Root.vue          # 应用根组件, 包含 <router-view>
+│   └── main.js           # Vue 应用入口
+└── ...
+```
 
-### 4.2. 未来开发建议
-- **UI/UX 打磨**:
-  - 对代码块增加语法高亮 (如使用 `highlight.js`)。
-  - 优化加载和错误状态的视觉反馈。
-- **功能扩展**:
-  - 增加会话的重命名功能。
-  - 实现对历史消息的编辑和重新生成。
-  - 将BOM表中的单价变为可���辑，以便用户手动输入价格并重新计算总价。
+### 4.2. 认证流程
+- **��由**: `router/index.js` 定义了公共路由 (`/login`, `/register`) 和受保护的路由 (`/`)。`beforeEach` 导航守卫会检查用户的认证状态，如果未登录的用户尝试访问受保护路由，则会自动重定向到 `/login`。
+- **状态管理**: `stores/auth.js` 负责处理用户的认证状态。
+  - `token` 和 `username` 从 `localStorage` 中初始化，以实现会话持久化。
+  - `login` 和 `register` action 调用 API，成功后将令牌存入 `localStorage` 并重定向到主页。
+  - `logout` action 清除令牌和 `localStorage`，并重定向到登录页。
+- **API 请求**: `services/api.js` 使用 Axios 拦截器自动将 `Authorization: Bearer <token>` 请求头附加到所有发出的 `apiClient` 请求中。对于使用 `fetch` 的流式请求，该请求头也会被手动添加。
