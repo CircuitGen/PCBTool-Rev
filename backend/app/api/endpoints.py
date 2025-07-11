@@ -64,8 +64,8 @@ async def stream_initial_analysis(db: Session, user: schemas.User, image_id: str
     conversation_title = text_input[:50] if text_input else "Image Analysis"
     conversation = crud.create_conversation(db, user_id=user.id, title=conversation_title)
     message_content = {"type": "initial_analysis", "data": final_outputs}
-    crud.create_message(db, conversation_id=conversation.id, role="assistant", content=message_content)
-    final_event = {"event": "conversation_created", "conversation_id": conversation.id, "message_content": message_content}
+    new_message = crud.create_message(db, conversation_id=conversation.id, role="assistant", content=message_content)
+    final_event = {"event": "conversation_created", "conversation_id": conversation.id, "message_content": message_content, "message_id": new_message.id}
     yield f"data: {json.dumps(final_event)}\n\n"
 
 @api_router.post("/conversations/stream", tags=["Conversations"])

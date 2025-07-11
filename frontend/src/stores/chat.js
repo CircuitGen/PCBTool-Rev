@@ -59,7 +59,7 @@ export const useChatStore = defineStore('chat', {
         
         if (event === 'conversation_created') {
           // This is our final, custom event from the backend
-          const { conversation_id, message_content } = eventData;
+          const { conversation_id, message_content, message_id } = eventData;
           
           // Replace the temporary conversation with the real one
           delete this.conversations[tempConvoId];
@@ -68,7 +68,7 @@ export const useChatStore = defineStore('chat', {
             id: conversation_id,
             title: text ? text.substring(0, 30) : "Image Analysis",
             messages: [{
-              id: Date.now(), // A proper ID would be better, but this works
+              id: message_id || Date.now(), // Use the real message ID from backend
               role: 'assistant',
               content: message_content,
               created_at: new Date().toISOString(),
@@ -211,6 +211,7 @@ export const useChatStore = defineStore('chat', {
             title: convo.title,
             messages: convo.messages.map(msg => ({
               ...msg,
+              id: msg.id, // Keep the original message ID from database
               content: JSON.parse(msg.content) // Pre-parse content
             })),
           };
