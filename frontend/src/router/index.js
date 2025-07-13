@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useChatStore } from '@/stores/chat';
 import App from '@/App.vue'; // The main chat interface
 import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
@@ -28,17 +29,22 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const isAuthenticated = authStore.isAuthenticated;
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    // If the route requires auth and the user is not authenticated, redirect to login
     next('/login');
   } else if ((to.name === 'Login' || to.name === 'Register') && isAuthenticated) {
-    // If the user is already authenticated, prevent them from accessing login/register pages
     next('/');
   } else {
+    // If navigating to an authenticated route and we haven't loaded history yet
+    if (to.meta.requiresAuth && isAuthenticated) {
+      const chatStore = useChatStore();
+      if (Object.keys(chatStore.conversations).length === 0) {
+        await chatStore.fetchHistory();
+      }
+    }
     next();
   }
 });

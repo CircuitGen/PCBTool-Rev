@@ -15,16 +15,19 @@ app = FastAPI(title=PROJECT_NAME)
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Define allowed origins
+# In production, replace "http://your_domain.com" with your actual frontend URL.
+origins = [
+    "http://localhost:5173",  # Local Vue dev server
+    "http://120.27.135.185",  # Your production domain
+]
 
-# Set up CORS
-# In a production environment, you should restrict the origins.
-# For this prototype, we'll allow all origins.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(api_router, prefix="/api/v1")
@@ -32,4 +35,3 @@ app.include_router(api_router, prefix="/api/v1")
 @app.get("/")
 async def root():
     return {"message": f"Welcome to {PROJECT_NAME}"}
-

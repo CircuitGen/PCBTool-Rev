@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '@/services/api';
-import router from '@/router';
+import { useChatStore } from '@/stores/chat';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -21,6 +21,11 @@ export const useAuthStore = defineStore('auth', {
         this.username = username;
         localStorage.setItem('token', access_token);
         localStorage.setItem('username', username);
+        
+        // After successful login, fetch the chat history
+        const chatStore = useChatStore();
+        await chatStore.fetchHistory();
+
         // Redirect to the main chat interface
         router.push('/');
       } catch (err) {
