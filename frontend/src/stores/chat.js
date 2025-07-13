@@ -168,6 +168,12 @@ export const useChatStore = defineStore('chat', {
       this.currentConversationId = null;
     },
 
+    clearConversations() {
+      this.conversations = {};
+      this.currentConversationId = null;
+      this.error = null;
+    },
+
     async deleteConversation(conversationId) {
       try {
         await api.deleteConversation(conversationId);

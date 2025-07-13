@@ -43,6 +43,9 @@ export const useAuthStore = defineStore('auth', {
         }
     },
     logout() {
+      const chatStore = useChatStore();
+      chatStore.clearConversations(); // Clear chat history from state
+
       this.token = null;
       this.username = null;
       localStorage.removeItem('token');

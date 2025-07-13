@@ -74,8 +74,17 @@ export default {
     const params = new URLSearchParams();
     params.append('username', username);
     params.append('password', password);
-    return apiClient.post('/token', params, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    
+    // Using fetch for full control over urlencoded form
+    return fetch('http://120.27.135.185/api/v1/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params,
+    }).then(response => {
+      if (!response.ok) {
+        return response.json().then(err => Promise.reject(err));
+      }
+      return response.json();
     });
   },
   register(username, password) {
