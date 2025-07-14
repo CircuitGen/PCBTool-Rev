@@ -13,7 +13,7 @@ from app.db import crud
 from app.services import dify_service, component_service, guide_service, security_service
 from app.models import schemas
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 import asyncio
 
 class AnalysisRequestBody(schemas.BaseModel):
@@ -154,6 +154,10 @@ async def analyze_components(
     new_message = crud.create_message(db, conversation_id=conversation_id, role="assistant", content=new_message_content)
     return new_message.to_dict()
     
+@api_router.options("/conversations/{conversation_id}/generate-code/stream", tags=["Conversations"])
+async def options_generate_code(conversation_id: int):
+    return Response(status_code=200)
+
 @api_router.post("/conversations/{conversation_id}/generate-code/stream", tags=["Conversations"])
 async def stream_generate_code(
     conversation_id: int,
@@ -197,6 +201,10 @@ async def stream_generate_code(
 
     return StreamingResponse(generator(), media_type="text/event-stream")
 
+@api_router.options("/conversations/{conversation_id}/generate-deployment-guide/stream", tags=["Conversations"])
+async def options_generate_deployment_guide(conversation_id: int):
+    return Response(status_code=200)
+
 @api_router.post("/conversations/{conversation_id}/generate-deployment-guide/stream", tags=["Conversations"])
 async def stream_generate_deployment_guide(
     conversation_id: int,
@@ -218,18 +226,41 @@ async def stream_generate_deployment_guide(
     except (json.JSONDecodeError, KeyError):
         raise HTTPException(status_code=400, detail="Invalid message format.")
 
-    guide_text = guide_service.generate_guide_text(req_doc, bom_text)
-    audio_path = guide_service.convert_text_to_speech(guide_text)
-    audio_url = "/" + audio_path.replace("\\", "/") if audio_path else None
-
-    message_content = {"type": "deployment_guide", "data": {"text": guide_text, "audio_url": audio_url}}
-    crud.create_message(db, conversation_id=conversation_id, role="assistant", content=message_content)
-    
     async def generator():
-        final_event = {"event": "final_message", "content": message_content}
-        yield f"data: {json.dumps(final_event)}\n\n"
+        # First, generate and stream the text
+        yield f"data: {json.dumps({'event': 'node_started', 'data': {'title': 'Generating deployment guide...'}})}\n\n"
+        
+        guide_text = guide_service.generate_guide_text(req_doc, bom_text)
+        
+        # Stream the text first without audio
+        message_content = {"type": "deployment_guide", "data": {"text": guide_text, "audio_url": None}}
+        crud.create_message(db, conversation_id=conversation_id, role="assistant", content=message_content)
+        
+        yield f"data: {json.dumps({'event': 'final_message', 'content': message_content})}\n\n"
+        
+        # Generate audio asynchronously after text is sent
+        yield f"data: {json.dumps({'event': 'node_started', 'data': {'title': 'Generating audio...'}})}\n\n"
+        
+        try:
+            audio_path = guide_service.convert_text_to_speech(guide_text)
+            audio_url = "/" + audio_path.replace("\\", "/") if audio_path else None
+            
+            # Update the message with audio URL
+            if audio_url:
+                message_content["data"]["audio_url"] = audio_url
+                # Note: In production, you might want to update the database message here
+                yield f"data: {json.dumps({'event': 'audio_ready', 'audio_url': audio_url})}\n\n"
+        except Exception as e:
+            print(f"Audio generation failed: {e}")
+            # Continue without audio
+        
+        yield f"data: {json.dumps({'event': 'node_finished', 'data': {'title': 'Deployment guide completed'}})}\n\n"
 
     return StreamingResponse(generator(), media_type="text/event-stream")
+
+@api_router.options("/conversations/{conversation_id}/generate-schematic/stream", tags=["Conversations"])
+async def options_generate_schematic(conversation_id: int):
+    return Response(status_code=200)
 
 @api_router.post("/conversations/{conversation_id}/generate-schematic/stream", tags=["Conversations"])
 async def stream_generate_schematic(
