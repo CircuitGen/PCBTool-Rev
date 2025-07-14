@@ -24,8 +24,8 @@ PROJECT_NAME = "PCBTool Backend"
 API_V1_STR = "/api/v1"
 
 # --- Database Configuration ---
-# Using SQLite for simplicity in this prototype
-DATABASE_URL = "sqlite:///./pcbtool.db"
+# Using SQLite for development, PostgreSQL for production
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./pcbtool.db")
 
 # --- User Settings ---
 # A default user for the prototype to associate data with

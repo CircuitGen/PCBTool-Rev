@@ -12,8 +12,10 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title=PROJECT_NAME)
 
-# Mount static files directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Mount static files directory (only if directory exists)
+import os
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Define allowed origins
 # In production, replace "http://your_domain.com" with your actual frontend URL.

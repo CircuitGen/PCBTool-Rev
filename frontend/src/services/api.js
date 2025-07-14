@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -27,7 +27,7 @@ function streamApiRequest(endpoint, body, onStreamEvent) {
     'Authorization': `Bearer ${authStore.token}`
   };
 
-  fetch(`http://localhost:8000/api/v1${endpoint}`, {
+  fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}${endpoint}`, {
     method: 'POST',
     headers: headers,
     body: JSON.stringify(body),
@@ -76,7 +76,7 @@ export default {
     params.append('password', password);
     
     // Using fetch for full control over urlencoded form
-    return fetch('http://120.27.135.185/api/v1/token', {
+    return fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: params,
@@ -103,7 +103,7 @@ export default {
       headers['Authorization'] = `Bearer ${authStore.token}`;
     }
 
-    fetch('http://localhost:8000/api/v1/conversations/stream', {
+    fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/conversations/stream`, {
       method: 'POST',
       headers: headers,
       body: formData,
