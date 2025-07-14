@@ -21,7 +21,7 @@ class Message(MessageBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class MessageResponse(BaseModel):
     id: int
@@ -45,7 +45,7 @@ class Conversation(ConversationBase):
     messages: List[Message] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- User Schemas ---
 
@@ -61,7 +61,7 @@ class User(UserBase):
     conversations: List[Conversation] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- Token Schemas ---
 class Token(BaseModel):

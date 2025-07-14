@@ -5,11 +5,11 @@
       <form @submit.prevent="handleRegister">
         <div class="form-group">
           <label for="username">Username</label>
-          <input type="text" v-model="username" id="username" required />
+          <input type="text" v-model="username" id="username" autocomplete="username" required />
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" v-model="password" id="password" required />
+          <input type="password" v-model="password" id="password" autocomplete="new-password" required />
         </div>
         <div v-if="authStore.error" class="error-message">{{ authStore.error }}</div>
         <button type="submit">Register</button>

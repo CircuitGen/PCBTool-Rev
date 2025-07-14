@@ -27,10 +27,15 @@ function streamApiRequest(endpoint, body, onStreamEvent) {
     'Authorization': `Bearer ${authStore.token}`
   };
 
+  // Create AbortController for timeout control
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+
   fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}${endpoint}`, {
     method: 'POST',
     headers: headers,
     body: JSON.stringify(body),
+    signal: controller.signal,
   })
   .then(async response => {
     if (!response.ok) {
@@ -42,7 +47,10 @@ function streamApiRequest(endpoint, body, onStreamEvent) {
 
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        clearTimeout(timeoutId);
+        break;
+      }
       
       const chunk = decoder.decode(value, { stream: true });
       const lines = chunk.split('\n\n').filter(line => line.trim() !== '');
@@ -63,8 +71,16 @@ function streamApiRequest(endpoint, body, onStreamEvent) {
     }
   })
   .catch(error => {
+    clearTimeout(timeoutId);
     console.error('Streaming failed:', error);
-    onStreamEvent({ event: 'error', message: `Connection to server failed: ${error.message}` });
+    if (error.name === 'AbortError') {
+      onStreamEvent({ event: 'error', message: 'Request timeout. Please try again.' });
+    } else {
+      onStreamEvent({ event: 'error', message: `Connection to server failed: ${error.message}` });
+    }
+  })
+  .finally(() => {
+    clearTimeout(timeoutId);
   });
 }
 
@@ -103,10 +119,15 @@ export default {
       headers['Authorization'] = `Bearer ${authStore.token}`;
     }
 
+    // Create AbortController for timeout control
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+
     fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'}/conversations/stream`, {
       method: 'POST',
       headers: headers,
       body: formData,
+      signal: controller.signal,
     })
     .then(async response => {
       if (!response.ok) {
@@ -118,7 +139,10 @@ export default {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          clearTimeout(timeoutId);
+          break;
+        }
         
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n\n');
@@ -139,8 +163,16 @@ export default {
       }
     })
     .catch(error => {
+      clearTimeout(timeoutId);
       console.error('Streaming failed:', error);
-      onStreamEvent({ event: 'error', message: 'Connection to server failed.' });
+      if (error.name === 'AbortError') {
+        onStreamEvent({ event: 'error', message: 'Request timeout. Please try again.' });
+      } else {
+        onStreamEvent({ event: 'error', message: 'Connection to server failed.' });
+      }
+    })
+    .finally(() => {
+      clearTimeout(timeoutId);
     });
   },
 

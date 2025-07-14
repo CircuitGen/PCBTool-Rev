@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import api from '@/services/api';
 import { useChatStore } from '@/stores/chat';
+import router from '@/router';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -16,7 +17,8 @@ export const useAuthStore = defineStore('auth', {
       this.error = null;
       try {
         const response = await api.login(username, password);
-        const { access_token } = response.data;
+        // Note: api.login uses fetch, so response is already the JSON data
+        const { access_token } = response;
         this.token = access_token;
         this.username = username;
         localStorage.setItem('token', access_token);
@@ -29,17 +31,20 @@ export const useAuthStore = defineStore('auth', {
         // Redirect to the main chat interface
         router.push('/');
       } catch (err) {
-        this.error = err.response?.data?.detail || 'Login failed.';
+        console.error('Login error:', err);
+        this.error = err.detail || 'Login failed.';
       }
     },
     async register(username, password) {
         this.error = null;
         try {
-            await api.register(username, password);
+            const response = await api.register(username, password);
             // After successful registration, automatically log the user in
             await this.login(username, password);
         } catch (err) {
+            console.error('Registration error:', err);
             this.error = err.response?.data?.detail || 'Registration failed.';
+            throw err; // Don't continue to login if registration failed
         }
     },
     logout() {

@@ -22,6 +22,8 @@ if os.path.exists("static"):
 origins = [
     "http://localhost:5173",  # Local Vue dev server
     "http://120.27.135.185",  # Your production domain
+    "https://pcbtoolfrontend.vercel.app",  # Vercel frontend domain
+    "*",  # Allow all origins for development/testing
 ]
 
 app.add_middleware(
