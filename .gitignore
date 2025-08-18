@@ -17,6 +17,7 @@ pnpm-debug.log*
 # Environment variables
 .env
 .env.*
+.vercel
 
 # Backend static files (generated audio)
 /backend/static/audio/
